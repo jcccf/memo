@@ -3,7 +3,7 @@
 
 import sqlite3
 
-conn = sqlite3.connect('../data/db.sqlite')
+conn = sqlite3.connect('../data/db_google.sqlite')
 c = conn.cursor()
 
 c.execute('''CREATE TABLE quotes (movie text, actor text, quote text, source text, query_type text, result int, urls text)''')

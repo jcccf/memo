@@ -8,6 +8,10 @@ def get_bing(query_string):
   print "Sleeping for %f..." % sleep_time
   time.sleep(sleep_time)
   
+  if len(query_string) > 200:
+    print "This quote was too long: %s" % query_string
+    return (0, [])
+  
   query = urllib.quote_plus(query_string)
   opener = urllib2.build_opener()
   fil = opener.open('http://api.search.live.net/json.aspx?appid=%s&query=%s&sources=web' % (BING_APP_ID, query))

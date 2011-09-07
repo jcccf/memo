@@ -1,7 +1,6 @@
 # QueryGoogle - use GoogleParser to find out information about the quotes
 # obtained from QuotesParser
 
-from GoogleParser import *
 from BingParser import *
 import sqlite3, pickle, string
 
@@ -12,7 +11,7 @@ def remove_punctuation(quote):
 
 movie_quotes=pickle.load(open('../data/title_to_quotes_parsed.pickle','r'))
 
-continue_from = 'fletch'
+continue_from = 'the king of comedy'
 
 conn = sqlite3.connect('../data/db.sqlite')
 conn.text_factory = str
@@ -28,7 +27,7 @@ for movie, quotes in movie_quotes:
   # Query each quote with and without the movie
   # Store Results
   for actor, quote in quotes:
-    quote_q = quote
+    quote_q = quote.replace('\"','')
     # r1 = get_google("\"%s\"" % quote_q)
     # r2 = get_google("\"%s\" \"%s\"" % (movie, quote_q))
     r1 = get_bing("\"%s\"" % quote_q)

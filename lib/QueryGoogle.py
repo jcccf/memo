@@ -15,7 +15,7 @@ movie_quotes=pickle.load(open('../data/title_to_quotes_parsed.pickle','r'))
 
 progress = Progress('../data/title_to_quotes_google_progress.pickle')
 
-conn = sqlite3.connect('../data/db.sqlite')
+conn = sqlite3.connect('../data/db_google.sqlite')
 conn.text_factory = str
 c = conn.cursor()
 
@@ -37,10 +37,10 @@ for movie, quotes in movie_quotes:
 
     if r1 == None or r2 == None:
       progress.save()
-      raise Exception("Progress Saved; Bing Failed!")
+      raise Exception("Progress Saved; Google Failed!")
 
-    c.execute('INSERT INTO quotes (movie, actor, quote, source, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?)', (movie, actor, quote, 'bing', 'plain', r1[0], str(r1[1])))
-    c.execute('INSERT INTO quotes (movie, actor, quote, source, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?)', (movie, actor, quote, 'bing', 'with_movie', r2[0], str(r2[1])))
+    c.execute('INSERT INTO quotes (movie, actor, quote, source, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?)', (movie, actor, quote, 'google', 'plain', r1[0], str(r1[1])))
+    c.execute('INSERT INTO quotes (movie, actor, quote, source, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?)', (movie, actor, quote, 'google', 'with_movie', r2[0], str(r2[1])))
     
     conn.commit()
     progress.complete((movie,quote))
