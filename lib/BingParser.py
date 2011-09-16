@@ -1,10 +1,10 @@
 from lxml.html import parse
 import re, time, random, urllib, urllib2, json
 
-BING_APP_ID = 'D922B026428E58D0B1B38C3CB94E227B999D6F3B'
+app_ids = ['D922B026428E58D0B1B38C3CB94E227B999D6F3B','5DA1F9DA8B46C5656204D4110B13130F8F0391E1','26D582D305C6F76D6BABEEA234F43E4C2997E043']
 
-def get_bing(query_string):
-  sleep_time = 1 * random.random()
+def get_bing(query_string, app_id=0):
+  sleep_time = 0.5 * random.random()
   print "Sleeping for %f..." % sleep_time
   time.sleep(sleep_time)
   
@@ -14,7 +14,12 @@ def get_bing(query_string):
   
   query = urllib.quote_plus(query_string)
   opener = urllib2.build_opener()
-  fil = opener.open('http://api.search.live.net/json.aspx?appid=%s&query=%s&sources=web' % (BING_APP_ID, query))
+  try:
+    fil = opener.open('http://api.search.live.net/json.aspx?appid=%s&query=%s&sources=web' % (app_ids[app_id], query))
+  except urllib2.URLError as detail:
+    print "Caught URLError: ", detail
+    return None
+    
   root = json.loads(fil.read())
 
   try:

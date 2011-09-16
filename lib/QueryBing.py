@@ -11,7 +11,7 @@ def remove_punctuation(quote):
 
 movie_quotes=pickle.load(open('../data/title_to_quotes_parsed.pickle','r'))
 
-continue_from = 'the king of comedy'
+continue_from = 'kalifornia'
 
 conn = sqlite3.connect('../data/db.sqlite')
 conn.text_factory = str
