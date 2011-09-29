@@ -3,8 +3,8 @@ import nltk, string, re
 # Some Regexes
 remove_actions = re.compile('(\[.+\])')
 remove_actions_2 = re.compile('(\(.+\))')
-match_left = re.compile('([^\[])*([\s]*\[[^\[]*)')
-match_right = re.compile('([^\]]*\])([\s]*[^\]]*)*')
+match_left = re.compile('([^\[\(]*)([\s]*[\[|\(]{1}[^\[]*)')
+match_right = re.compile('([^\]]*[\]|\)]{1}[\s]*)([^\]\)]*)')
 whitespace = re.compile('([\s]+)')
 authorrest = re.compile('([a-zA-Z0-9\\\(\)\-\"\'\/.,\#;\s]+):(.+)')
 sentences = re.compile('([^.!?\s][^.!?]*(?:[.!?](?![\'\"]?\s|$)[^.!?]*)*[.!?]?[\'\"]?(?=\s|$))')
@@ -18,6 +18,17 @@ def filter_by_length(movie_quotes, min_len=5, max_len=7):
       if min_len <= len(words) <= max_len:
         filtered.append((movie,actor,quote))
   print "%d quotes between %d and %d..." % (len(filtered), min_len, max_len)
+  return filtered
+  
+def word_count(sentence):
+  return len(filter(lambda s: s not in string.punctuation, nltk.word_tokenize(sentence)))
+  
+def filter_by_length_flat(quotes, index, min_len=5, max_len=7):
+  filtered = []
+  for q in quotes:
+    words = filter(lambda s: s not in string.punctuation, nltk.word_tokenize(q[index]))
+    if min_len <= len(words) <= max_len:
+      filtered.append(q)
   return filtered
 
 # Split a quote into sentences
@@ -64,3 +75,27 @@ def remove_brackets(quote):
 # Remove extra whitespace in quotes (ex. multiple spaces)
 def whitespace_quote(quote):
   return whitespace.sub(' ', quote).strip()
+  
+# Remove all things in brackets, as well as remove parts before/after
+# unbalanced brackets, and then remove extra whitespaces, then trim
+def wash_quote(quote):
+  quote = remove_bracketed_text(quote)
+  return whitespace_quote(remove_brackets(quote.replace('*','')))
+  
+def remove_bracketed_text(quote):
+  x = 0
+  out = ''
+  for c in quote:
+    if c == '(':
+      x += 1
+    elif c == ')':
+      if x == 0:
+        out = ''
+        x += 1
+      x -= 1
+    elif x == 0: # and implicitly c != ')'
+      out += c
+  return out
+  
+def space_in_front(quote):
+  return None

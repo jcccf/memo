@@ -11,11 +11,11 @@ def load_examples(db_file):
   conn = sqlite3.connect(db_file)
   conn.text_factory = str
   c = conn.cursor()
-  c.execute('SELECT q1.movie, q1.quote, q1.result, q2.result FROM quotes AS q1, quotes AS q2  WHERE q1.movie = q2.movie AND q1.quote = q2.quote AND q1.query_type=\'plain\' AND q2.query_type=\'movie_title\' AND q1.result > 0 AND q1.result > q2.result')
+  c.execute('SELECT q1.movie, q1.quote, q1.result, q2.result FROM quotes AS q1, quotes AS q2  WHERE q1.movie = q2.movie AND q1.quote = q2.quote AND q1.query_type=\'plain\' AND q2.query_type=\'movie_title\' AND q1.result > 1 AND q2.result > 1 AND q1.result > q2.result')
   return c.fetchall()
     
-singles = load_examples('../data/db_quotes_parsed_single_sentences.sqlite')
-negatis = load_examples('../data/db_negquotes_parsed_sentences.sqlite')
+singles = load_examples('../data/db/quotes_parsed_single_sentences.sqlite')
+negatis = load_examples('../data/db/negquotes_parsed_sentences.sqlite')
 
 sx = [(r1,r2,r2/float(r1),r1-r2) for (_,_,r1,r2) in singles]
 sy = [1] * len(sx)
@@ -44,30 +44,37 @@ ny = [0] * len(nx)
   #   correct += 1
   # int correct, len(predictions), float(correct)/len(predictions)
 
-random.shuffle(sx)
-sx = sx[:len(nx)]
-random.shuffle(nx)
-sx_train = sx[:len(sx)/2]
-sy_train = [1] * (len(sx)/2)
-sx_test = sx[len(sx)/2:]
-sy_test = [1] * (len(sx) - len(sx)/2)
-nx_train = nx[:len(nx)/2]
-ny_train = [0] * (len(nx)/2)
-nx_test = nx[len(nx)/2:]
-ny_test = [0] * (len(ny) - len(ny)/2)
-print len(sx)
-print len(nx)
-clf = svm.SVC(probability=False)
-print clf.fit(sx_train+nx_train, sy_train+ny_train)
-predictions = clf.predict(sx_test+nx_test)
-# print clf.predict_proba(sx_test+nx_test)
-print clf.score(sx_test+nx_test, sy_test+ny_test)
+print "# Positive", len(sx)
+print "# Negative", len(nx)
+print "P Positive", float(len(sx))/(len(sx)+len(nx))
 
-correct = 0
-for x,y in map(None, predictions, sy_test+ny_test):
-  if x == y:
-    correct += 1
-print correct, len(predictions), float(correct)/len(predictions)
+def do_svm(sx, nx, kernel='rbf'):
+  random.shuffle(sx)
+  sx = sx[:len(nx)] # Balance test
+  random.shuffle(nx)
+  sx_train = sx[:len(sx)/2]
+  sy_train = [1] * (len(sx)/2)
+  sx_test = sx[len(sx)/2:]
+  sy_test = [1] * (len(sx) - len(sx)/2)
+  nx_train = nx[:len(nx)/2]
+  ny_train = [0] * (len(nx)/2)
+  nx_test = nx[len(nx)/2:]
+  ny_test = [0] * (len(ny) - len(ny)/2)
+  clf = svm.SVC(probability=False)
+  clf.fit(sx_train+nx_train, sy_train+ny_train)
+  predictions = clf.predict(sx_test+nx_test)
+  # print clf.predict_proba(sx_test+nx_test)
+  
+  correct = 0
+  for x,y in map(None, predictions, sy_test+ny_test):
+    if x == y:
+      correct += 1
+  return correct, len(predictions), clf.score(sx_test+nx_test, sy_test+ny_test)
+  # same as float(correct)/len(predictions)
+
+x = [do_svm(sx, nx) for i in range(0,100)]
+c, l, s = map(sum,zip(*x))
+print float(c)/len(x), float(l)/len(x), float(s)/len(x)
 
 # clf = svm.SVC(kernel='linear')
 # print clf.fit(sx+nx, sy+ny)

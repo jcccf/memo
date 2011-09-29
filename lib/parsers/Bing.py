@@ -8,7 +8,7 @@ def get_bing(query_string, app_id=0):
   print "Sleeping for %f..." % sleep_time
   time.sleep(sleep_time)
   
-  if len(query_string) > 200:
+  if len(query_string) > 500:
     print "This quote was too long: %s" % query_string
     return (0, [])
   

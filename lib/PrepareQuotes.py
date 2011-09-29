@@ -4,8 +4,8 @@
 
 import re, pickle, os.path
 from unidecode import unidecode
-from QuoteFunctions import *
-from FileFunctions import *
+from misc.MQuote import *
+from misc.MFile import *
 
 # FILENAME = 'quotes_parsed'
 FILENAME = 'negquotes_parsed'
