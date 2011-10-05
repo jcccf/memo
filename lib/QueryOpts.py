@@ -1,6 +1,6 @@
 import nltk, string, pickle, sqlite3
 from misc import *
-# from BingParser import *
+from parsers import *
 from optparse import OptionParser
 
 # Options
@@ -29,7 +29,7 @@ DB_FILE = '../data/pn/db/%s.%s.sqlite' % (NAME, ENGINE_NAME)
 movie_quotes=pickle.load(open(DATA_FILE,'r'))
 filtered = MQuote.filter_by_length(movie_quotes, MIN_LENGTH, MAX_LENGTH)
 progress = MProgress.Progress(PROGRESS_FILE)
-MDb.db_prepare(DB_FILE)
+MDb.db_prepare_movie(DB_FILE)
 
 # Connect to SQLite Database
 conn = sqlite3.connect(DB_FILE)
@@ -43,29 +43,45 @@ def doIt(filtered, quote_type, app_id=0):
     raise Exception("Invalid Search Engine Given")
   
   last_movie = ''
-  for movie, actor, quote in filtered:
-    if progress.is_completed((movie,actor,quote)):
+  for movie_name, actor, quote in filtered:
+    
+    if last_movie != movie_name:
+      print movie_name
+      last_movie = movie_name
+    
+    if progress.is_completed((movie_name,actor,quote)):
       continue
-    
-    if last_movie is not movie:
-      print movie
-      last_movie = movie  
-    
+    # Search for Full Utterances
     quote_q = quote.replace('\"','')
     r1 = parser.get("\"%s\"" % quote_q)
-    r2 = parser.get("\"%s\" \"%s\"" % (movie, quote_q))  
-   
+    r2 = parser.get("\"%s\" \"%s\"" % (movie_name, quote_q))
     if r1 == None or r2 == None:
       progress.save()
-      raise Exception("Progress Saved! Search Engine Parser Failed!") 
-      
-    c.execute('INSERT INTO quotes (movie, actor, quote, source, quote_type, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', (movie, actor, quote, 'bing', quote_type,'plain', r1[0], str(r1[1])))
-    c.execute('INSERT INTO quotes (movie, actor, quote, source, quote_type, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', (movie, actor, quote, 'bing', quote_type,'movie_title', r2[0], str(r2[1])))
+      raise Exception("Progress Saved! Failed!")
+    MDb.sql_ins(c, -1, movie_name, actor, quote, 'full', 'plain', r1[0], str(r1[1]))
+    MDb.sql_ins(c, -1, movie_name, actor, quote, 'full', 'movie_title', r2[0], str(r2[1]))
     
+    # Search for Sentences
+    sentences = MQuote.split_into_sentences(quote)
+    if len(sentences) == 1:
+      MDb.sql_ins(c, -1, movie_name, actor, quote, 'sentence', 'plain', r1[0], str(r1[1]))
+      MDb.sql_ins(c, -1, movie_name, actor, quote, 'sentence', 'movie_title', r2[0], str(r2[1]))
+    else:
+      for sentence in sentences:
+        sentence = sentence.replace('\"', '')
+        r1 = parser.get("\"%s\"" % sentence)
+        r2 = parser.get("\"%s\" \"%s\"" % (movie_name, sentence))
+        if r1 == None or r2 == None:
+          progress.save()
+          raise Exception("Progress Saved! Failed!") 
+        MDb.sql_ins(c, -1, movie_name, actor, sentence, 'sentence', 'plain', r1[0], str(r1[1]))
+        MDb.sql_ins(c, -1, movie_name, actor, sentence, 'sentence', 'movie_title', r2[0], str(r2[1]))
+    
+    # Commit to DB
     conn.commit()
-    progress.complete((movie,actor,quote))
+    progress.complete((movie_name,actor,quote))
 
-print 'Getting Counts for %s/%s on %s...' % (NAME, SEARCH_NAME, ENGINE_NAME)
+print 'Getting Counts for %s on %s...' % (NAME, ENGINE_NAME)
 doIt(filtered, QUOTE_TYPE, APP_ID)
 
 c.close()

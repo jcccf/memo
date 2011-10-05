@@ -46,8 +46,6 @@ with open('../data/imsdb_titles.txt','w') as f:
   for t in titles:
     f.write(t+'\n')
 
-raise Exception("Done")
-
 script_links = []
 for l in links:
   sleep_time = 0.5 * random.random()
@@ -70,6 +68,6 @@ for l in links:
       break
   script_links.append(script_link)
 
-with open('../data/imsdb/a.txt', 'w') as f:
+with open('../data/imsdb/imsdb_scripturls.txt', 'w') as f:
   for link in script_links:
     f.write(link+"\n")

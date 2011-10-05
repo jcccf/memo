@@ -1,0 +1,26 @@
+<AnswerKey xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/AnswerKey.xsd">
+  
+  <Question>
+    <QuestionIdentifier>1</QuestionIdentifier>
+    <AnswerOption>
+      <SelectionIdentifier>N</SelectionIdentifier>
+      <AnswerScore>0</AnswerScore>
+    </AnswerOption>
+    <DefaultScore>10</DefaultScore>
+  </Question>
+  
+  <Question>
+    <QuestionIdentifier>2</QuestionIdentifier>
+    <AnswerOption>
+      <SelectionIdentifier>N</SelectionIdentifier>
+      <AnswerScore>10</AnswerScore>
+    </AnswerOption>
+    <DefaultScore>0</DefaultScore>
+  </Question>
+  
+  <QualificationValueMapping>
+    <PercentageMapping>
+      <MaximumSummedScore>100</MaximumSummedScore>
+    </PercentageMapping>
+  </QualificationValueMapping>
+</AnswerKey>

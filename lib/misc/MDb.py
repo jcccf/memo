@@ -23,5 +23,5 @@ def db_prepare_movie(dbfilename):
   else:
     print 'Database Already Exists for %s' % dbfilename
     
-def sql_ins(c, conv_id, movie_name, actor, quote, quote_type, query_type, result, urls):
-  c.execute('INSERT INTO quotes (conv_id, movie, actor, quote, source, quote_type, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)', (conv_id, movie_name, actor, quote, 'bing', quote_type, query_type, result, urls))
+def sql_ins(c, conv_id, movie_name, actor, quote, quote_type, query_type, result, urls, engine='bing'):
+  c.execute('INSERT INTO quotes (conv_id, movie, actor, quote, source, quote_type, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)', (conv_id, movie_name, actor, quote, engine, quote_type, query_type, result, urls))

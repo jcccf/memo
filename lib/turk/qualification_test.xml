@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuestionForm xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd">
+  
+  <Overview>
+    <Title>Movie Quote Memorability Qualification Test</Title>
+    <FormattedContent><![CDATA[      
+      <ul>
+        <li>You will be given pairs of quotes and asked to identify whether one, both or neither quote is memorable.</li>
+        <li>A quote is defined as memorable if you recognize it from the movie which it came from.</li>
+        <li>You will need to correctly identify as many memorable quotes as you can in order to qualify.</li>
+        <li>If you are unsure, make your best guess. <b>It is NOT important that you identify ALL of them correctly.</b></li>
+      </ul>
+      
+      <h2>Example 1</h2>
+      For these quotes from "The Wizard of Oz", <b>only the first quote</b> should be identified as memorable.
+      <ul>
+        <li>"Toto, I've got a feeling we're not in Kansas anymore."</li>
+        <li>"I know, but we all got to work out our own problems."</li>
+      </ul>
+      
+      <h2>Example 2</h2>
+      For these quotes from "The Wizard of Oz", <b>only the second quote</b> should be identified as memorable.
+      <ul>
+        <li>"Oh, goodness! How did you ever get like this?"</li>
+        <li>"Follow the Yellow Brick Road."</li>
+      </ul>
+      
+      <h2>Example 3</h2>
+      For these quotes from "The Wizard of Oz", <b>both quotes</b> should be identified as memorable.
+      <ul>
+        <li>"Toto, I've got a feeling we're not in Kansas anymore."</li>
+        <li>"Follow the Yellow Brick Road."</li>
+      </ul>
+      
+      <h2>Example 4</h2>
+      For these quotes from "The Wizard of Oz", <b>neither quote</b> should be identified as memorable.
+      <ul>
+        <li>"It's all right. You can all get up."</li>
+        <li>"Now which way do we go?"</li>
+      </ul>
+      
+      <br /><br />
+    ]]>
+    </FormattedContent>
+  </Overview>
+  
+  <Question>
+   <QuestionIdentifier>1</QuestionIdentifier>
+   <QuestionContent>
+     <Text>This pair of quotes was from "the Wizard of Oz".</Text>
+     <List>
+       <ListItem>"Witch? Hmph, I'm not afraid of a witch. I'm not afraid of anything - except a lighted match."</ListItem>
+       <ListItem>"What would you do with a brain if you had one?"</ListItem>
+     </List>
+   </QuestionContent>
+   <AnswerSpecification>
+     <SelectionAnswer>
+       <StyleSuggestion>radiobutton</StyleSuggestion>
+       <Selections>
+         <Selection>
+           <SelectionIdentifier>M1</SelectionIdentifier>
+           <Text>Only the first quote is memorable</Text>
+          </Selection>
+          <Selection>
+            <SelectionIdentifier>M2</SelectionIdentifier>
+            <Text>Only the second quote is memorable</Text>
+           </Selection>
+           <Selection>
+             <SelectionIdentifier>B</SelectionIdentifier>
+             <Text>Both quotes are memorable</Text>
+            </Selection>
+            <Selection>
+              <SelectionIdentifier>N</SelectionIdentifier>
+              <Text>Neither quote is memorable</Text>
+             </Selection>
+        </Selections>
+      </SelectionAnswer>
+   </AnswerSpecification>
+  </Question>
+  
+  <Question>
+   <QuestionIdentifier>2</QuestionIdentifier>
+   <QuestionContent>
+     <Text>This pair of quotes was from "The Usual Suspects".</Text>
+     <List>
+       <ListItem>"What time is it?"</ListItem>
+       <ListItem>"Enjoy the meal. I'll call you."</ListItem>
+     </List>
+   </QuestionContent>
+   <AnswerSpecification>
+     <SelectionAnswer>
+       <StyleSuggestion>radiobutton</StyleSuggestion>
+       <Selections>
+         <Selection>
+           <SelectionIdentifier>M1</SelectionIdentifier>
+           <Text>Only the first quote is memorable</Text>
+          </Selection>
+          <Selection>
+            <SelectionIdentifier>M2</SelectionIdentifier>
+            <Text>Only the second quote is memorable</Text>
+           </Selection>
+           <Selection>
+             <SelectionIdentifier>B</SelectionIdentifier>
+             <Text>Both quotes are memorable</Text>
+            </Selection>
+            <Selection>
+              <SelectionIdentifier>N</SelectionIdentifier>
+              <Text>Neither quote is memorable</Text>
+             </Selection>
+        </Selections>
+      </SelectionAnswer>
+   </AnswerSpecification>
+  </Question>
+  
+</QuestionForm>

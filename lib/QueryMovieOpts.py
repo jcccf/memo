@@ -1,42 +1,49 @@
-import nltk, string, pickle, sqlite3
+import nltk, string, pickle, sqlite3, time
 from misc import *
 from parsers import *
 from optparse import OptionParser
 
 # Options
 parser = OptionParser()
-parser.add_option("-n", "--name", type="string", dest="name", default="star_wars_a_new_hope", help="Filename (in data/scripts dir, without extension)")
-parser.add_option("-s", "--search_name", type="string", dest="search_name", default="", help="Title of Movie that will be used in Search")
+parser.add_option("-n", "--namefile", type="string", dest="name", default="../data/scripts/names.txt", help="Filename (in data/scripts dir, without extension)")
 parser.add_option("-e", "--engine", type="string", dest="engine_name", default="blekko", help="Name of Search Engine to use")
 parser.add_option("-a", "--appid", type="int", dest="appid", default=0, help="AppID Number to Use")
 (options, args) = parser.parse_args()
 
-NAME = options.name
 APP_ID = options.appid
-SEARCH_NAME = options.search_name
-if len(SEARCH_NAME) == 0:
-  SEARCH_NAME = NAME.replace('_',' ')
 ENGINE_NAME = options.engine_name
 
-# Load Everything Relevant
-DATA_FILE = '../data/scripts/%s.pickle' % NAME
-PROGRESS_FILE = '../data/scripts/%s.%s.pickle_prog' % (NAME, ENGINE_NAME)
-DB_FILE = '../data/scripts/db/%s.%s.sqlite' % (NAME, ENGINE_NAME)
-script=pickle.load(open(DATA_FILE,'r'))
-progress = MProgress.Progress(PROGRESS_FILE)
-MDb.db_prepare_movie(DB_FILE)
+# Load Script Filenames to Parse
+if len(options.name) == 0:
+  raise Exception("Provide a Names File!")
+names, snames = [], []
+with open(options.name, 'r') as f:
+  for l in f:
+    n, sn = l.replace('\n','').split('\t\t')
+    names.append(n)
+    snames.append(sn)
 
-# Connect to SQLite Database
-conn = sqlite3.connect(DB_FILE)
-conn.text_factory = str
-c = conn.cursor()
-
-def sql_ins(conv_id, movie_name, actor, quote, quote_type, query_type, result, urls):
-  c.execute('INSERT INTO quotes (conv_id, movie, actor, quote, source, quote_type, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)', (conv_id, movie_name, actor, quote, ENGINE_NAME, quote_type, query_type, result, urls))
-
-def doIt(movie_name, script, app_id=0):
+def doIt(name, movie_name='', app_id=0):
+  print "Now processing %s..." % movie_name
+  if len(movie_name) == 0:
+    movie_name = name.replace('_',' ')
+  # Load Everything Relevant
+  data_file = '../data/scripts/%s.pickle' % name
+  progress_file = '../data/scripts/%s.%s.pickle_prog' % (name, ENGINE_NAME)
+  db_file = '../data/scripts/db/%s.%s.sqlite' % (name, ENGINE_NAME)
+  script=pickle.load(open(data_file,'r'))
+  progress = MProgress.Progress(progress_file)
+  MDb.db_prepare_movie(db_file)
+  
+  # Connect to SQLite Database
+  conn = sqlite3.connect(db_file)
+  conn.text_factory = str
+  c = conn.cursor()
+  
   if ENGINE_NAME == 'blekko':
     parser = Blekko.Blekko(app_id)
+  elif ENGINE_NAME == 'bing':
+    parser = Bing.Bing(app_id)
   else:
     raise Exception("Invalid Search Engine Given")
   
@@ -53,15 +60,16 @@ def doIt(movie_name, script, app_id=0):
       r2 = parser.get("\"%s\" \"%s\"" % (movie_name, quote_q))
       if r1 == None or r2 == None:
         progress.save()
+        c.close()
         raise Exception("Progress Saved! Search Failed!")
-      sql_ins(conv_id, movie_name, actor, quote, 'full', 'plain', r1[0], str(r1[1]))
-      sql_ins(conv_id, movie_name, actor, quote, 'full', 'movie_title', r2[0], str(r2[1]))
+      MDb.sql_ins(c, conv_id, movie_name, actor, quote, 'full', 'plain', r1[0], str(r1[1]), engine=ENGINE_NAME)
+      MDb.sql_ins(c, conv_id, movie_name, actor, quote, 'full', 'movie_title', r2[0], str(r2[1]), engine=ENGINE_NAME)
       
       # Search for Sentences
       sentences = MQuote.split_into_sentences(quote)
       if len(sentences) == 1:
-        sql_ins(conv_id, movie_name, actor, quote, 'sentence', 'plain', r1[0], str(r1[1]))
-        sql_ins(conv_id, movie_name, actor, quote, 'sentence', 'movie_title', r2[0], str(r2[1]))
+        MDb.sql_ins(c, conv_id, movie_name, actor, quote, 'sentence', 'plain', r1[0], str(r1[1]), engine=ENGINE_NAME)
+        MDb.sql_ins(c, conv_id, movie_name, actor, quote, 'sentence', 'movie_title', r2[0], str(r2[1]), engine=ENGINE_NAME)
       else:
         for sentence in sentences:
           sentence = sentence.replace('\"', '')
@@ -69,14 +77,25 @@ def doIt(movie_name, script, app_id=0):
           r2 = parser.get("\"%s\" \"%s\"" % (movie_name, sentence))
           if r1 == None or r2 == None:
             progress.save()
+            c.close()
             raise Exception("Progress Saved! Search Failed!") 
-          sql_ins(conv_id, movie_name, actor, sentence, 'sentence', 'plain', r1[0], str(r1[1]))
-          sql_ins(conv_id, movie_name, actor, sentence, 'sentence', 'movie_title', r2[0], str(r2[1]))
+          MDb.sql_ins(c, conv_id, movie_name, actor, sentence, 'sentence', 'plain', r1[0], str(r1[1]), engine=ENGINE_NAME)
+          MDb.sql_ins(c, conv_id, movie_name, actor, sentence, 'sentence', 'movie_title', r2[0], str(r2[1]), engine=ENGINE_NAME)
 
       conn.commit()
       progress.complete((actor,quote))
+  c.close()
 
-print 'Getting Counts for %s/%s on %s...' % (NAME, SEARCH_NAME, ENGINE_NAME)
-doIt(SEARCH_NAME, script, APP_ID)
+print 'Getting Counts via %s...' % (ENGINE_NAME)
 
-c.close()
+# Keep Retrying
+i = 0
+while i < len(names):
+  try:
+    #doIt(SEARCH_NAME, script, APP_ID)
+    doIt(names[i], snames[i], APP_ID)
+    i += 1
+  except Exception as detail:
+    print "Caught Exception: ", detail
+    print "Sleeping for 15 minutes..."
+    time.sleep(900)

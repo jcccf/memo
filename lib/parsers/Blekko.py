@@ -29,7 +29,8 @@ class Blekko:
     query = urllib.quote_plus(query_string.replace('/',' '))
     opener = urllib2.build_opener()
     try:
-      fil = opener.open('http://blekko.com/ws/?&q=/json+%s&auth=%s' % (query,self.app_id))
+      print 'http://blekko.com/?auth=%s&q=/json+%s' % (self.app_id,query)
+      fil = opener.open('http://blekko.com/?auth=%s&q=/json+%s' % (self.app_id,query))
     except urllib2.URLError as detail:
       print "Caught URLError: ", detail
       return None
