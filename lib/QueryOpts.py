@@ -1,4 +1,4 @@
-import nltk, string, pickle, sqlite3
+import nltk, string, pickle, sqlite3, time
 from misc import *
 from parsers import *
 from optparse import OptionParser
@@ -39,6 +39,8 @@ c = conn.cursor()
 def doIt(filtered, quote_type, app_id=0):
   if ENGINE_NAME == 'blekko':
     parser = Blekko.Blekko(app_id)
+  elif ENGINE_NAME == 'bing':
+    parser = Bing.Bing(app_id)
   else:
     raise Exception("Invalid Search Engine Given")
   
@@ -57,6 +59,7 @@ def doIt(filtered, quote_type, app_id=0):
     r2 = parser.get("\"%s\" \"%s\"" % (movie_name, quote_q))
     if r1 == None or r2 == None:
       progress.save()
+      c.close()
       raise Exception("Progress Saved! Failed!")
     MDb.sql_ins(c, -1, movie_name, actor, quote, 'full', 'plain', r1[0], str(r1[1]))
     MDb.sql_ins(c, -1, movie_name, actor, quote, 'full', 'movie_title', r2[0], str(r2[1]))
@@ -73,6 +76,7 @@ def doIt(filtered, quote_type, app_id=0):
         r2 = parser.get("\"%s\" \"%s\"" % (movie_name, sentence))
         if r1 == None or r2 == None:
           progress.save()
+          c.close()
           raise Exception("Progress Saved! Failed!") 
         MDb.sql_ins(c, -1, movie_name, actor, sentence, 'sentence', 'plain', r1[0], str(r1[1]))
         MDb.sql_ins(c, -1, movie_name, actor, sentence, 'sentence', 'movie_title', r2[0], str(r2[1]))
@@ -82,6 +86,16 @@ def doIt(filtered, quote_type, app_id=0):
     progress.complete((movie_name,actor,quote))
 
 print 'Getting Counts for %s on %s...' % (NAME, ENGINE_NAME)
-doIt(filtered, QUOTE_TYPE, APP_ID)
+
+# Keep Retrying
+i = 0
+while i == 0:
+  try:
+    doIt(filtered, QUOTE_TYPE, APP_ID)
+    i += 1
+  except Exception as detail:
+    print "Caught Exception: ", detail
+    print "Sleeping for 15 minutes..."
+    time.sleep(900)
 
 c.close()

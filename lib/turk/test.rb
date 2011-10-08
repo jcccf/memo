@@ -12,7 +12,7 @@ def createNewHIT
   rewardAmount = 0.05 # 5 cents
   
   qualifications = {
-    :QualificationTypeId => '2CJU6L5OBVCIFISFZ89JI7GU1BTGZ3',
+    :QualificationTypeId => '2D5WYB49F9SS68SJWHFNVT5H5GNUQN',
     :Comparator => 'GreaterThan',
     :IntegerValue => '10'
   }
@@ -59,7 +59,7 @@ def createQualification
   result[:QualificationTypeId] # Return QualificationTypeId for later use
 end
 
-#createNewHIT
+createNewHIT
 
 #puts createQualification
 
