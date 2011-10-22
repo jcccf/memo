@@ -11,11 +11,11 @@ def createNewHIT
   numAssignments = 2
   rewardAmount = 0.05 # 5 cents
   
-  qualifications = {
-    :QualificationTypeId => '2D5WYB49F9SS68SJWHFNVT5H5GNUQN',
-    :Comparator => 'GreaterThan',
-    :IntegerValue => '10'
-  }
+  # qualifications = {
+  #   :QualificationTypeId => '2D5WYB49F9SS68SJWHFNVT5H5GNUQN',
+  #   :Comparator => 'GreaterThan',
+  #   :IntegerValue => '10'
+  # }
   
   # Define the location of the externalized question (QuestionForm) file.
   rootDir = File.dirname $0
@@ -29,8 +29,8 @@ def createNewHIT
     :MaxAssignments => numAssignments,
     :Reward => { :Amount => rewardAmount, :CurrencyCode => 'USD' },
     :Question => question,
-    :Keywords => keywords,
-    :QualificationRequirement => qualifications )
+    :Keywords => keywords )
+    #:QualificationRequirement => qualifications )
 
   puts "Created HIT: #{result[:HITId]}"
   puts "HIT Location: #{getHITUrl( result[:HITTypeId] )}"

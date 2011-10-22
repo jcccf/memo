@@ -183,6 +183,9 @@ def parse_script(url, name=None):
   
   pickle.dump(out, open('../data/scripts/%s.pickle' % NAME, 'w'))
   
+  # r i in range(0,5):
+  # i += 1
+  
 with open('../data/imsdb/imsdb_scripturls.txt', 'r') as f:
   sleep_time = 0.5 * random.random()
   time.sleep(sleep_time)
