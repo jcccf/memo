@@ -20,6 +20,9 @@ def filter_by_length(movie_quotes, min_len=5, max_len=7):
   print "%d quotes between %d and %d..." % (len(filtered), min_len, max_len)
   return filtered
   
+def words(sentence):
+  return filter(lambda s: s not in string.punctuation, nltk.word_tokenize(sentence))
+  
 def word_count(sentence):
   return len(filter(lambda s: s not in string.punctuation, nltk.word_tokenize(sentence)))
   
@@ -97,5 +100,18 @@ def remove_bracketed_text(quote):
       out += c
   return out
   
-def space_in_front(quote):
-  return None
+def clean_movie_title(title):
+  title = title.replace('_', ' ')
+  if ", the" in title:
+    title = "the " + title.replace(", the", "")
+  if ", a" in title:
+    title = "a " + title.replace(", a", "")
+  title = filter(lambda s: s not in string.punctuation, title)
+  return title
+  
+def clean_positive_quotes(pos):
+  pos2 = {}
+  for k, v in pos.iteritems():
+    vm = [x[1] for x in v]
+    pos2[clean_movie_title(k)] = vm
+  return pos2

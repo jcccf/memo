@@ -24,7 +24,7 @@ def print_scriptnames(filename='../../data/scripts/names.txt'):
   with open(filename, 'w') as f:
     for s in scriptnames:
       f.write('%s\t\t%s\n' % (s, s.replace('_',' ')))
-      
+
 # For some file printed out by print_scriptnames, arrange the script titles so that "hello, the" becomes "the hello"
 def prettyprint_scriptnames(ofilename='../../data/scripts/names_old.txt', nfilename='../../data/scripts/names_pretty.txt'):
   with open(ofilename, 'r') as f:
