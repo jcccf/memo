@@ -20,8 +20,11 @@ def filter_by_length(movie_quotes, min_len=5, max_len=7):
   print "%d quotes between %d and %d..." % (len(filtered), min_len, max_len)
   return filtered
   
+def letters(sentence):
+  return [c for c in sentence.lower() if c in "abcdefghijklmnopqrstuvwxyz"]
+  
 def words(sentence):
-  return filter(lambda s: s not in string.punctuation, nltk.word_tokenize(sentence))
+  return filter(lambda s: s not in string.punctuation, nltk.word_tokenize(sentence.lower()))
   
 def word_count(sentence):
   return len(filter(lambda s: s not in string.punctuation, nltk.word_tokenize(sentence)))

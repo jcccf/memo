@@ -14,7 +14,7 @@ def parse_scriptnames(filename):
       nsp.append(b)
   return (ns, nsp, nspo)
   
-ns, nsp, nspo = parse_scriptnames('../data/scripts/names_old.txt')
+ns, nsp, nspo = parse_scriptnames('../data/scripts/names.txt')
 cs, csp, cspo = parse_scriptnames('../data/chameleon/names_cham.txt')
 
 N_PREFIX = '../data/scripts/'

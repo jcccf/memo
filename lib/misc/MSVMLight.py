@@ -1,4 +1,5 @@
-import commands, random
+import commands, random, operator
+from collections import defaultdict
 
 def classify(test_file, model_file, classified_file):
   return commands.getoutput('../bin/svm_classify %s %s %s' % (test_file, model_file, classified_file))
@@ -67,3 +68,24 @@ def get_false_posneg(test_file, classified_file):
   f.close()
   cf.close()
   return (false_pos, false_neg)
+  
+def get_separating_hyperplane(model_file):
+  i, b, w = 0, 0.0, defaultdict(float)
+  with open(model_file, 'r') as f:
+    for l in f:
+      if i == 1 and not '0' in l and not 'kernel type' in l:
+          raise Exception("Not a linear kernel or not a model file.")
+      elif i == 10:
+        b = float(l.split('#', 1)[0])
+      elif i > 10:
+        alpha, fvs = l.split(' ', 1)
+        alpha, fvs = float(alpha), fvs.split('#', 1)[0].strip().split(' ')
+        #print alpha
+        for fv in fvs:
+          f, v = fv.split(':')
+          #print f, v
+          w[int(f)] += float(v) * alpha
+      i += 1
+  return (sorted(w.iteritems(), key=operator.itemgetter(1)), b)
+  
+# print get_separating_hyperplane('../examples_tfidf.txt.9.tr.mod')

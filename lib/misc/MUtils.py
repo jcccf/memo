@@ -1,5 +1,21 @@
 from collections import defaultdict
-import math
+import math, operator
+
+def average_tuples(setsoftuples):
+  '''Given (k,v) tuples, return (k,average of v) tuples'''
+  dict_accum = {}
+  for tuples in setsoftuples:
+    for k,v in tuples:
+      if k in dict_accum:
+        dict_accum[k] += v
+      else:
+        dict_accum[k] = v
+  return [(k,v/len(setsoftuples)) for k, v in dict_accum.iteritems()]
+  
+def print_tuples(tuples, filename):
+  with open(filename, 'w') as f:
+    for a,b in tuples:
+      f.write('{}\t{}\n'.format(a,b))
 
 # Creates Vectors from Sets of Documents
 # Most Useful for Text Documents
@@ -44,6 +60,18 @@ class MagicVectorizer(object):
         return ''.join(['%d:%d ' % (k,v) for k,v in vect])[:-1]
     else:
       return vect
+      
+  def dictionary_tofile(self, filename):
+    '''Output dicty to file with index, dictionary_word on each line'''
+    vs = sorted(self.dicty.iteritems(), key=operator.itemgetter(1))
+    with open(filename, 'w') as f:
+      for word, i in vs:
+        f.write('%d\t%s\n' % (i, word))
+  
+  def decode_tuples(self, tuples):
+    '''Given (dict_val,x) tuples, return (dict_key,x) tuples'''
+    dicty_rev = dict(zip(self.dicty.values(), self.dicty.keys())) # swap keys and values
+    return [(dicty_rev[i], v) for i,v in tuples]
     
 # a = MagicVectorizer()
 # a.add(['hello','world'])

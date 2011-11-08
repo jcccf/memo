@@ -1,4 +1,5 @@
 import sqlite3, os.path
+import MQuote
 
 # Create the appropriate SQLite tables to store data
 def db_prepare(dbfilename):
@@ -44,6 +45,26 @@ class MDb(object):
     self.c.close()
 
 class MDbQuotes(MDb):
+  
+  # Helper Match Functions
+  
+  def match_character(base, candidate):
+    return base[3] == candidate[3]
+
+  def match_character_and_quote_length(base, candidate):
+    return (base[3] == candidate[3] and 0 <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= 0)
+
+  def match_character_and_constant_quote_length(base, candidate):
+    return (base[3] == candidate[3] and 5 <= MQuote.word_count(base[4]) <= 7 and 5 <= MQuote.word_count(candidate[4]) <= 7)
+
+  match_dict = { 
+    'match_character' : match_character,
+    'match_character_and_quote_length': match_character_and_quote_length,
+    'match_character_and_constant_quote_length': match_character_and_constant_quote_length
+  }
+  
+  # Start of Real Functions
+  
   def __init__(self, dbfilename, quote_type='full', query_type='movie_title'):
     super(MDbQuotes,self).__init__(dbfilename)
     self.c.execute('SELECT id, conv_id, movie, actor, quote, result FROM quotes WHERE quote_type=? AND query_type=? ORDER BY id ASC', (quote_type, query_type))
@@ -68,30 +89,30 @@ class MDbQuotes(MDb):
         print "Warning: Quote '%s' not found in %s" % (p, self.filename)
   
   # Automatically eliminate positive quotes which have no pairings
-  def get_pos_neg_pairs(self, distance=10, found_limit=None):
+  def get_pos_neg_pairs(self, distance=10, found_limit=None, matcher='match_character'):
     pairs = []
     for pos_id in self.qid_pos:
-      matches = self.get_nearby_actor_line_ids(pos_id, distance, found_limit)
+      matches = self.get_nearby_actor_line_ids(pos_id, distance, found_limit, matcher)
       if len(matches) > 0:
         pairs.append((self.quotes[pos_id], [self.quotes[match] for match in matches]))
     return pairs
 
   # Stop searching if we encounter another positive quote when looking up and down
-  def get_nearby_actor_line_ids(self, line_id, distance=10, found_limit=None):
+  def get_nearby_actor_line_ids(self, line_id, distance=10, found_limit=None, matcher='match_character'):
+    matcher = MDbQuotes.match_dict[matcher]
     if found_limit:
       matches, found = [], 0
-      character_name = self.quotes[line_id][3]
       encountered_pos_up, encountered_pos_down = False, False # When to stop looking up or down
       for i in range(1, distance+1):
         if (encountered_pos_up and encountered_pos_down) or found == found_limit:
           break
-        if not encountered_pos_up and line_id - i >= 0 and self.quotes[line_id-i][3] == character_name:
+        if not encountered_pos_up and line_id - i >= 0 and matcher(self.quotes[line_id],self.quotes[line_id-i]):
           if line_id-i in self.qid_pos:
             encountered_pos_up = True
           elif found < found_limit:
             found += 1
             matches.append(line_id-i)
-        if not encountered_pos_down and line_id + i < len(self.quotes) and self.quotes[line_id+i][3] == character_name:
+        if not encountered_pos_down and line_id + i < len(self.quotes) and matcher(self.quotes[line_id],self.quotes[line_id+i]):
           if line_id+i in self.qid_pos:
             encountered_pos_down = True
           elif found < found_limit:
@@ -100,17 +121,16 @@ class MDbQuotes(MDb):
       return matches
     else:
       matches = []
-      character_name = self.quotes[line_id][3]
       encountered_pos_up, encountered_pos_down = False, False # When to stop looking up or down
       for i in range(1, distance+1):
         if encountered_pos_up and encountered_pos_down:
           break
-        if not encountered_pos_up and line_id - i >= 0 and self.quotes[line_id-i][3] == character_name:
+        if not encountered_pos_up and line_id - i >= 0 and matcher(self.quotes[line_id],self.quotes[line_id-i]):
           if line_id-i in self.qid_pos:
             encountered_pos_up = True
           else:
             matches.append(line_id-i)
-        if not encountered_pos_down and line_id + i < len(self.quotes) and self.quotes[line_id+i][3] == character_name:
+        if not encountered_pos_down and line_id + i < len(self.quotes) and matcher(self.quotes[line_id],self.quotes[line_id+i]):
           if line_id+i in self.qid_pos:
             encountered_pos_down = True
           else:
