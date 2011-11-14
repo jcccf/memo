@@ -42,6 +42,8 @@ class Bing:
     self.app_id = Bing.app_ids[i]
 
   def get(self, query_string):
+    query_string = query_string.replace('/', '')
+    
     sleep_time = 0.5 * random.random()
     print "Sleeping for %f..." % sleep_time
     time.sleep(sleep_time)
@@ -55,6 +57,9 @@ class Bing:
     try:
       fil = opener.open('http://api.search.live.net/json.aspx?appid=%s&query=%s&sources=web' % (self.app_id, query))
     except urllib2.URLError as detail:
+      # print "Query: ", query
+      # print "QueryString: ", query_string
+      # print 'http://api.search.live.net/json.aspx?appid=%s&query=%s&sources=web' % (self.app_id, query)
       print "Caught URLError: ", detail
       return None
       

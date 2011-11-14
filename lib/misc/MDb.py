@@ -1,4 +1,4 @@
-import sqlite3, os.path
+import sqlite3, os.path, MySQLdb
 import MQuote
 
 # Create the appropriate SQLite tables to store data
@@ -40,6 +40,9 @@ class MDb(object):
   def qt(self, query, tuples):
     self.c.execute(query, tuples)
     return self.c.fetchall()
+    
+  def commit(self):
+    self.conn.commit()
   
   def close(self):
     self.c.close()
@@ -136,6 +139,91 @@ class MDbQuotes(MDb):
           else:
             matches.append(line_id+i)
       return matches
+
+class MMySQLDb(MDb):
+  def __init__(self, database):
+    self.conn = MySQLdb.connect('localhost', 'memo', 'memo', database)
+    self.conn.text_factory = str
+    self.c = self.conn.cursor()
+    
+
+class MMySQLDbQuotes(MMySQLDb):
+
+  # Helper Match Functions
+
+  def match_character(base, candidate):
+    return base[3] == candidate[3]
+
+  def match_character_and_quote_length5(base, candidate):
+    return (base[3] == candidate[3] and -5 <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= 5)
+    
+  def match_character_and_quote_length3(base, candidate):
+    return (base[3] == candidate[3] and -3 <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= 3)
+    
+  def match_character_and_quote_length1(base, candidate):
+    return (base[3] == candidate[3] and -1 <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= 1)
+
+  def match_character_and_constant_quote_length(base, candidate):
+    return (base[3] == candidate[3] and 5 <= MQuote.word_count(base[4]) <= 7 and 5 <= MQuote.word_count(candidate[4]) <= 7)
+
+  match_dict = { 
+    'match_character' : match_character,
+    'match_character_and_quote_length1': match_character_and_quote_length1,
+    'match_character_and_quote_length3': match_character_and_quote_length3,
+    'match_character_and_quote_length5': match_character_and_quote_length5,
+    'match_character_and_constant_quote_length': match_character_and_constant_quote_length
+  }
+
+  # Start of Real Functions
+
+  def __init__(self, database, movie_name, quote_type='full', query_type='movie_title'):
+    super(MMySQLDbQuotes,self).__init__(database)
+    self.c.execute('SELECT id, conv_id, movie, actor, quote, result, is_memorable FROM quotes WHERE movie_name=%s AND quote_type=%s AND query_type=%s ORDER BY id ASC', (movie_name, quote_type, query_type))
+    self.quotes = self.c.fetchall()
+    self.qhash, self.qid_pos, self.q_pos = {}, {}, {}
+    for i,q in enumerate(self.quotes):
+      self.qhash[q[4]] = i
+
+  def get_pos_neg_pairs(self, pos_min_char=35, pos_min_results=10, neg_max_results=10, distance=50, found_limit=1, matcher='match_character'):
+    '''Automatically eliminate positive quotes which have no pairings'''
+    # Set positive quotes
+    self.q_pos, self.qid_pos = {}, {}
+    for q in self.quotes:
+      if q[6] == 1 and q[5] >= pos_min_results and len(q[4]) >= pos_min_char:
+        self.q_pos[q[4]] = True
+        self.qid_pos[self.qhash[q[4]]] = True
+        
+    # Find negative quotes that pair with the positive quotes
+    pairs = []
+    for pos_id in self.qid_pos:
+      matches = self.get_nearby_actor_line_ids(pos_id, neg_max_results, distance, found_limit, matcher)
+      if len(matches) > 0:
+        pairs.append((self.quotes[pos_id], [self.quotes[match] for match in matches]))
+    return pairs
+
+  # Stop searching if we encounter another positive quote when looking up and down
+  def get_nearby_actor_line_ids(self, line_id, neg_max_results=10, distance=50, found_limit=1, matcher='match_character'):
+    matcher = MMySQLDbQuotes.match_dict[matcher]
+    matches, found = [], 0
+    encountered_pos_up, encountered_pos_down = False, False # When to stop looking up or down
+    for i in range(1, distance+1):
+      if (encountered_pos_up and encountered_pos_down) or found == found_limit:
+        break
+      if not encountered_pos_up and line_id - i >= 0 and matcher(self.quotes[line_id],self.quotes[line_id-i]):
+        #print "Looking up at ", self.quotes[line_id-i][4]
+        if line_id-i in self.qid_pos:
+          encountered_pos_up = True
+        elif found < found_limit and self.quotes[line_id-i][5] <= neg_max_results:
+          found += 1
+          matches.append(line_id-i)
+      if not encountered_pos_down and line_id + i < len(self.quotes) and matcher(self.quotes[line_id],self.quotes[line_id+i]):
+        #print "Looking down at ", self.quotes[line_id+i][4]
+        if line_id+i in self.qid_pos:
+          encountered_pos_down = True
+        elif found < found_limit and self.quotes[line_id+i][5] <= neg_max_results:
+          found += 1
+          matches.append(line_id+i)
+    return matches
 
 def sql_ins(c, conv_id, movie_name, actor, quote, quote_type, query_type, result, urls, engine='bing'):
   c.execute('INSERT INTO quotes (conv_id, movie, actor, quote, source, quote_type, query_type, result, urls) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)', (conv_id, movie_name, actor, quote, engine, quote_type, query_type, result, urls))

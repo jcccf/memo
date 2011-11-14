@@ -48,21 +48,21 @@ def get_pairs(min_results, distance, pairs_per_quote):
 # ACTUAL CODE
 #
 
-print "Varying Distance"
-#for i in [10]:
-for i in [10, 20, 30, 40, 50, 100]:
-  jvals = []
-  for j in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]:
-  #for j in [10]:
-    movie_pairs = get_pairs(j, i, PAIRS_PER_QUOTE)
-    jvals.append(sum([len(pairs) for m, pairs in movie_pairs.iteritems()]))
-  stringy = "%d" % i
-  for j in jvals:
-    stringy += ", %d" % j
-  print stringy
+# print "Varying Distance"
+# #for i in [10]:
+# for i in [10, 20, 30, 40, 50, 100]:
+#   jvals = []
+#   for j in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]:
+#   #for j in [10]:
+#     movie_pairs = get_pairs(j, i, PAIRS_PER_QUOTE)
+#     jvals.append(sum([len(pairs) for m, pairs in movie_pairs.iteritems()]))
+#   stringy = "%d" % i
+#   for j in jvals:
+#     stringy += ", %d" % j
+#   print stringy
 
-# movie_pairs = get_pairs(MIN_RESULTS, DISTANCE, PAIRS_PER_QUOTE)
-# print sum([len(pairs) for m, pairs in movie_pairs.iteritems()])
+movie_pairs = get_pairs(MIN_RESULTS, DISTANCE, PAIRS_PER_QUOTE)
+print sum([len(pairs) for m, pairs in movie_pairs.iteritems()])
 
 # # Letter Frequency
 # vectorizer = MUtils.MagicVectorizer()
@@ -87,25 +87,25 @@ for i in [10, 20, 30, 40, 50, 100]:
 # avg_hyperplane = vectorizer.decode_tuples(sorted(MUtils.average_tuples(hyperplanes), key=lambda x: x[1]))
 # MUtils.print_tuples(avg_hyperplane, '../data/svm_results/letters_const_length_20.txt')
 
-# # Generate Dictionary
-# vectorizer = MUtils.MagicVectorizer()
-# for movie_name, pairs in movie_pairs.iteritems():
-#   for pos, neglist in pairs:
-#     vectorizer.add(MQuote.words(unidecode.unidecode(pos[4])))
-#     for neg in neglist:
-#       vectorizer.add(MQuote.words(unidecode.unidecode(neg[4])))
-# vectorizer.dictionary_tofile('examples_dictionary.txt')
-# 
-# # Generate Feature Vectors
-# with open('examples_tfidf.txt', 'w') as f:
-#   for movie_name, pairs in movie_pairs.iteritems():
-#     for pos, neglist in pairs:
-#       f.write('%s %s\n' % ('1', vectorizer.vectorize(MQuote.words(unidecode.unidecode(pos[4])), text=True, tfidf=True)))
-#       for neg in neglist:
-#         f.write('%s %s\n' % ('-1', vectorizer.vectorize(MQuote.words(unidecode.unidecode(neg[4])), text=True, tfidf=True)))
-# 
-# print MSVMLight.get_cross_val_accuracy('examples_tfidf.txt')
-# 
-# hyperplanes = [MSVMLight.get_separating_hyperplane('examples_tfidf.txt.%d.tr.mod' % i)[0] for i in range(0,10)]
-# avg_hyperplane = vectorizer.decode_tuples(sorted(MUtils.average_tuples(hyperplanes), key=lambda x: x[1]))
-# MUtils.print_tuples(avg_hyperplane, '../data/svm_results/same_character_20.txt')
+# Generate Dictionary
+vectorizer = MUtils.MagicVectorizer()
+for movie_name, pairs in movie_pairs.iteritems():
+  for pos, neglist in pairs:
+    vectorizer.add(MQuote.words(unidecode.unidecode(pos[4])))
+    for neg in neglist:
+      vectorizer.add(MQuote.words(unidecode.unidecode(neg[4])))
+vectorizer.dictionary_tofile('examples_dictionary.txt')
+
+# Generate Feature Vectors
+with open('examples_tfidf.txt', 'w') as f:
+  for movie_name, pairs in movie_pairs.iteritems():
+    for pos, neglist in pairs:
+      f.write('%s %s\n' % ('1', vectorizer.vectorize(MQuote.words(unidecode.unidecode(pos[4])), text=True, tfidf=True)))
+      for neg in neglist:
+        f.write('%s %s\n' % ('-1', vectorizer.vectorize(MQuote.words(unidecode.unidecode(neg[4])), text=True, tfidf=True)))
+
+print MSVMLight.get_cross_val_accuracy('examples_tfidf.txt')
+
+hyperplanes = [MSVMLight.get_separating_hyperplane('examples_tfidf.txt.%d.tr.mod' % i)[0] for i in range(0,10)]
+avg_hyperplane = vectorizer.decode_tuples(sorted(MUtils.average_tuples(hyperplanes), key=lambda x: x[1]))
+MUtils.print_tuples(avg_hyperplane, '../data/svm_results/same_character_20.txt')
