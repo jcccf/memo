@@ -154,24 +154,21 @@ class MMySQLDbQuotes(MMySQLDb):
   def match_character(base, candidate):
     return base[3] == candidate[3]
 
-  def match_character_and_quote_length5(base, candidate):
-    return (base[3] == candidate[3] and -5 <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= 5)
+  def match_character_and_quote_length(length):
+    return (lambda base, candidate: (base[3] == candidate[3] and -length <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= length))
     
-  def match_character_and_quote_length3(base, candidate):
-    return (base[3] == candidate[3] and -3 <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= 3)
-    
-  def match_character_and_quote_length1(base, candidate):
-    return (base[3] == candidate[3] and -1 <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= 1)
-
-  def match_character_and_constant_quote_length(base, candidate):
-    return (base[3] == candidate[3] and 5 <= MQuote.word_count(base[4]) <= 7 and 5 <= MQuote.word_count(candidate[4]) <= 7)
+  def match_character_and_constant_quote_length(minl,maxl):
+    return (lambda base, candidate: (base[3] == candidate[3] and minl <= MQuote.word_count(base[4]) <= maxl and minl <= MQuote.word_count(candidate[4]) <= maxl))
 
   match_dict = { 
     'match_character' : match_character,
-    'match_character_and_quote_length1': match_character_and_quote_length1,
-    'match_character_and_quote_length3': match_character_and_quote_length3,
-    'match_character_and_quote_length5': match_character_and_quote_length5,
-    'match_character_and_constant_quote_length': match_character_and_constant_quote_length
+    'match_character_and_quote_length1': match_character_and_quote_length(1),
+    'match_character_and_quote_length3': match_character_and_quote_length(3),
+    'match_character_and_quote_length5': match_character_and_quote_length(5),
+    'match_character_and_quote_length7': match_character_and_quote_length(7),
+    'match_character_and_quote_length9': match_character_and_quote_length(9),
+    'match_character_and_quote_length11': match_character_and_quote_length(11),
+    'match_character_and_constant_quote_length': match_character_and_constant_quote_length(5,7)
   }
 
   # Start of Real Functions

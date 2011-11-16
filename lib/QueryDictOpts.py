@@ -37,6 +37,7 @@ def doIt(movie_quotes, app_id=0):
     raise Exception("Invalid Search Engine Given")
 
   for movie_name, quotes in movie_quotes.iteritems():
+    movie_name = MQuote.clean_movie_title(movie_name)
     for quote in quotes:
       if progress.is_completed((movie_name,quote)):
         continue

@@ -16,6 +16,9 @@ def get_pairs(pos_min_char=35, pos_min_results=10, neg_max_results=10, distance=
     movie_pairs[movie_name] = mdb.get_pos_neg_pairs(pos_min_char=pos_min_char, pos_min_results=pos_min_results, neg_max_results=neg_max_results, distance=distance, matcher=matcher)
   return movie_pairs
 
+def num_pairs(movie_pairs):
+  return sum([len(pairs) for m, pairs in movie_pairs.iteritems()])
+
 def cross_validate(movie_pairs, filename):
   # Generate Dictionary
   vectorizer = MUtils.MagicVectorizer()
@@ -53,12 +56,9 @@ def binomial_significance(num_correct, num_wrong, significance=0.05):
 # print sfinal
 
 # See Accuracy for Word Length
-p1 = get_pairs(pos_min_char=35, pos_min_results=10, neg_max_results=10, distance=50, matcher='match_character_and_quote_length1')
-p3 = get_pairs(pos_min_char=35, pos_min_results=10, neg_max_results=10, distance=50, matcher='match_character_and_quote_length3')
-p5 = get_pairs(pos_min_char=35, pos_min_results=10, neg_max_results=10, distance=50, matcher='match_character_and_quote_length5')
-c1 = cross_validate(p1, '../data/svm_results/xlen1')
-c3 = cross_validate(p3, '../data/svm_results/xlen3')
-c5 = cross_validate(p5, '../data/svm_results/xlen5')
-print binomial_significance(c1[1], c1[2])
-print binomial_significance(c3[1], c3[2])
-print binomial_significance(c5[1], c5[2])
+for i in [1,3,5,7,9,11]:
+  p = get_pairs(pos_min_char=35, pos_min_results=0, neg_max_results=99999999, distance=200, matcher='match_character_and_quote_length%d'%i)
+  print num_pairs(p)
+  c = cross_validate(p, '../data/svm_results/xlen%d'%i)
+  print c
+  print binomial_significance(c[1], c[2])
