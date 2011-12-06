@@ -12,26 +12,24 @@ body {
 h1 {
   font-size: 2em; }
 
-#questions {
-  display: none; }
-  #questions .question {
-    padding-bottom: 20px;
-    margin-bottom: 30px;
-    border-bottom: 1px dashed gray; }
-    #questions .question .quote {
-      font-size: larger;
-      border: 1px solid #cfcfcf;
-      border-radius: 12px;
-      margin-left: 10%;
-      margin-right: 10%;
-      margin-bottom: 15px;
-      padding: 5px; }
-      #questions .question .quote .num {
-        float: left;
-        font-weight: bold; }
-    #questions .question .qmovie {
-      margin-bottom: 10px;
-      padding-top: 5px; }
+#questions .question {
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+  border-bottom: 1px dashed gray; }
+  #questions .question .quote {
+    font-size: larger;
+    border: 1px solid #cfcfcf;
+    border-radius: 12px;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 15px;
+    padding: 5px; }
+    #questions .question .quote .num {
+      float: left;
+      font-weight: bold; }
+  #questions .question .qmovie {
+    margin-bottom: 10px;
+    padding-top: 5px; }
 
 #movie_selector {
   text-align: center; }
@@ -55,8 +53,25 @@ h1 {
       background-color: #f1f1f1;
       cursor: pointer; }
 
-#loading {
+#loading, #instructions, #final_instructions {
   display: none; }
+
+#instructions .quote, #final_instructions .quote {
+  font-size: larger;
+  border: 1px solid #cfcfcf;
+  border-radius: 12px;
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-bottom: 15px;
+  padding: 5px; }
+  #instructions .quote .num, #final_instructions .quote .num {
+    float: left;
+    font-weight: bold; }
+#instructions #instructions_quotes, #instructions #final_instructions_quotes, #final_instructions #instructions_quotes, #final_instructions #final_instructions_quotes {
+  margin-top: 15px;
+  border-bottom: 1px dashed gray;
+  padding-bottom: 20px;
+  margin-bottom: 30px; }
 
 label {
   display: block;

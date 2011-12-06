@@ -1,45 +1,43 @@
 <?php
+require_once('config.php');
+
 $group_id = htmlentities($_GET['gid']);
 $movies = $_GET['movies'];
 shuffle($movies);
 
-// Connect to DB or Die
-try {
-  $db = new PDO('sqlite:./test.db');
-}
-catch (Exception $e) {
-  die($e);
-}
-
-// Print out Questions
-$i = 0;
+// Print out questions
+$a = array();
 foreach($movies as $movie) {
-  $posts = $db->prepare('SELECT * FROM questions WHERE group_id = ? AND movie_title = ?');
+  $posts = $db->prepare('SELECT id, movie_title, quote_1, quote_2 FROM quote_pairs WHERE group_id = ? AND movie_title = ?');
   $posts->execute(array($group_id, $movie));
-
   while($post = $posts->fetchObject()) {
-    ?>
-    <div class="question">
-      Q<?php echo $i+1 ?>
-      <div class="qmovie">From <b><?php echo $post->movie_title ?></b></div>
-      <div class="quote"><div class="num">1</div><?php echo $post->quote_1 ?></div>
-      <div class="quote"><div class="num">2</div><?php echo $post->quote_2 ?></div>
-    <div class="qoption">
-    <label><input type="radio" name="q<?php echo $i ?>" value="Q1" /><b>Only the first quote</b> is memorable.</label>
-    </div>
-    <div class="qoption">
-    <label><input type="radio" name="q<?php echo $i ?>" value="Q2" /><b>Only the second quote</b> is memorable.</label>
-    </div>
-    <div class="qoption">
-    <label><input type="radio" name="q<?php echo $i ?>" value="B" /><b>Both quotes</b> are memorable.</label>
-    </div>
-    <div class="qoption">
-    <label><input type="radio" name="q<?php echo $i ?>" value="N" /><b>Neither quote</b> is memorable.</label>
-    </div>
-    </div>
-    <?php
-    $i++;
+	  $a['q'][] = array('m' => $post->movie_title, 'q1' => $post->quote_1, 'q2' => $post->quote_2, 'qid' => $post->id);
   }
 }
+
+// Select random short-term recall quote
+$all_movies = $db->prepare('SELECT DISTINCT movie_title FROM quote_short_term');
+$all_movies->execute();
+$movie_candidates = array();
+while($all_movie = $all_movies->fetchObject()) {
+  if (!in_array($all_movie->movie_title, $movies)) {
+    $movie_candidates[] = $all_movie->movie_title;
+  }
+}
+shuffle($movie_candidates);
+$strecall = $db->prepare('SELECT id, quote, quote_type FROM quote_short_term WHERE movie_title = ?');
+$strecall->execute(array($movie_candidates[0]));
+while($str = $strecall->fetchObject()) {
+  if ($str->quote_type === 'positive' || $str->quote_type === 'negative') {
+    $a['m']['c'][] = array('q' => $str->quote, 'id' => $str->id);
+  }
+  else {
+    $a['m']['nc'][] = array('q' => $str->quote, 'id' => $str->id);
+  }
+}
+
+echo json_encode($a);
+
+// TODO LOG THIS REQUEST
 
 ?>

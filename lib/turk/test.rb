@@ -5,11 +5,12 @@ require 'ruby-aws'
 #@mturk = Amazon::WebServices::MechanicalTurkRequester.new :Host => :Production
 
 def createNewHIT
-  title = "Movie Survey"
-  desc = "This is a survey to find out how many movies you have watched recently."
+  title = "Movie Quotes Survey"
+  desc = "We want to study how well people remember movie quotes."
   keywords = "movie, survey"
-  numAssignments = 2
-  rewardAmount = 0.05 # 5 cents
+  numAssignments = 10
+  rewardAmount = 0.50 # 50 cents
+  duration = 600 # 10 minutes
   
   # qualifications = {
   #   :QualificationTypeId => '2D5WYB49F9SS68SJWHFNVT5H5GNUQN',
@@ -28,6 +29,7 @@ def createNewHIT
     :Description => desc,
     :MaxAssignments => numAssignments,
     :Reward => { :Amount => rewardAmount, :CurrencyCode => 'USD' },
+    :AssignmentDurationInSeconds => duration,
     :Question => question,
     :Keywords => keywords )
     #:QualificationRequirement => qualifications )
