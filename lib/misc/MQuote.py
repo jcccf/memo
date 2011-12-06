@@ -22,9 +22,17 @@ def filter_by_length(movie_quotes, min_len=5, max_len=7):
   
 def letters(sentence):
   return [c for c in sentence.lower() if c in "abcdefghijklmnopqrstuvwxyz"]
-  
+
+def filter_stopwords(words):
+  from nltk.corpus import stopwords
+  stopset = set(stopwords.words('english'))
+  return [w for w in words if len(w) > 3 and w not in stopset]
+
 def words(sentence):
   return filter(lambda s: s not in string.punctuation, nltk.word_tokenize(sentence.lower()))
+
+def words_without_stopwords(sentence):
+  return filter_stopwords(words(sentence))
   
 def word_count(sentence):
   return len(filter(lambda s: s not in string.punctuation, nltk.word_tokenize(sentence)))
@@ -118,3 +126,10 @@ def clean_positive_quotes(pos):
     vm = [x[1] for x in v]
     pos2[clean_movie_title(k)] = vm
   return pos2
+  
+def actor_quote(quote):
+  if ':' in quote:
+    actor, rest = quote.split(':', 1)
+    return (actor.strip(), wash_quote(rest))
+  else:
+    return ('', wash_quote(quote))

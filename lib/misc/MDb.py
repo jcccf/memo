@@ -40,6 +40,14 @@ class MDb(object):
   def qt(self, query, tuples):
     self.c.execute(query, tuples)
     return self.c.fetchall()
+
+  def i(self, query):
+    self.c.execute(query)
+    return self.c
+  
+  def it(self, query, tuples):
+    self.c.execute(query, tuples)
+    return self.c
     
   def commit(self):
     self.conn.commit()
@@ -142,7 +150,7 @@ class MDbQuotes(MDb):
 
 class MMySQLDb(MDb):
   def __init__(self, database):
-    self.conn = MySQLdb.connect('localhost', 'memo', 'memo', database)
+    self.conn = MySQLdb.connect('lion.cs.cornell.edu', 'jc882', 'memo3330', database)
     self.conn.text_factory = str
     self.c = self.conn.cursor()
     
@@ -152,13 +160,13 @@ class MMySQLDbQuotes(MMySQLDb):
   # Helper Match Functions
 
   def match_character(base, candidate):
-    return base[3] == candidate[3]
+    return base[MMySQLDbQuotes.ACTOR] == candidate[MMySQLDbQuotes.ACTOR]
 
   def match_character_and_quote_length(length):
-    return (lambda base, candidate: (base[3] == candidate[3] and -length <= (MQuote.word_count(base[4]) - MQuote.word_count(candidate[4])) <= length))
+    return (lambda base, candidate: (base[MMySQLDbQuotes.ACTOR] == candidate[MMySQLDbQuotes.ACTOR] and -length <= base[MMySQLDbQuotes.IMDB_QUOTE_WC] - candidate[MMySQLDbQuotes.QUOTE_WC] <= length))
     
   def match_character_and_constant_quote_length(minl,maxl):
-    return (lambda base, candidate: (base[3] == candidate[3] and minl <= MQuote.word_count(base[4]) <= maxl and minl <= MQuote.word_count(candidate[4]) <= maxl))
+    return (lambda base, candidate: (base[MMySQLDbQuotes.ACTOR] == candidate[MMySQLDbQuotes.ACTOR] and minl <= base[MMySQLDbQuotes.IMDB_QUOTE_WC] <= maxl and minl <= candidate[MMySQLDbQuotes.QUOTE_WC] <= maxl))
 
   match_dict = { 
     'match_character' : match_character,
@@ -173,22 +181,34 @@ class MMySQLDbQuotes(MMySQLDb):
 
   # Start of Real Functions
 
+  ID = 0
+  CONV_ID = 1
+  ACTOR = 2
+  IS_MEMO = 3
+  QUOTE = 4
+  QUOTE_WC = 5
+  RESULT = 6
+  IMDB_QUOTE = 7
+  IMDB_QUOTE_WC = 8
+  IMDB_RESULT = 9
+
   def __init__(self, database, movie_name, quote_type='full', query_type='movie_title'):
     super(MMySQLDbQuotes,self).__init__(database)
-    self.c.execute('SELECT id, conv_id, movie, actor, quote, result, is_memorable FROM quotes WHERE movie_name=%s AND quote_type=%s AND query_type=%s ORDER BY id ASC', (movie_name, quote_type, query_type))
+    self.c.execute('SELECT id, conv_id, actor, is_memorable, quote, quote_wc, result_fixed, imdb_quote, imdb_quote_wc, imdb_result_fixed FROM quotes WHERE movie_name=%s AND quote_type=%s AND query_type=%s ORDER BY id ASC', (movie_name, quote_type, query_type))
     self.quotes = self.c.fetchall()
     self.qhash, self.qid_pos, self.q_pos = {}, {}, {}
     for i,q in enumerate(self.quotes):
-      self.qhash[q[4]] = i
+      self.qhash[q[MMySQLDbQuotes.QUOTE]] = i
 
-  def get_pos_neg_pairs(self, pos_min_char=35, pos_min_results=10, neg_max_results=10, distance=50, found_limit=1, matcher='match_character'):
+  def get_pos_neg_pairs(self, imdb_memorability=True, pos_min_wc=0, pos_min_char=35, pos_min_results=10, pos_max_results=100000, neg_max_results=10, distance=50, found_limit=1, matcher='match_character'):
     '''Automatically eliminate positive quotes which have no pairings'''
     # Set positive quotes
     self.q_pos, self.qid_pos = {}, {}
+    ignore_memorability = True if imdb_memorability is not True else False
     for q in self.quotes:
-      if q[6] == 1 and q[5] >= pos_min_results and len(q[4]) >= pos_min_char:
-        self.q_pos[q[4]] = True
-        self.qid_pos[self.qhash[q[4]]] = True
+      if (ignore_memorability or q[MMySQLDbQuotes.IS_MEMO] == 1) and pos_max_results >= q[MMySQLDbQuotes.IMDB_RESULT] >= pos_min_results and len(q[MMySQLDbQuotes.IMDB_QUOTE]) >= pos_min_char and q[MMySQLDbQuotes.IMDB_QUOTE_WC] >= pos_min_wc:
+        self.q_pos[q[MMySQLDbQuotes.QUOTE]] = True
+        self.qid_pos[self.qhash[q[MMySQLDbQuotes.QUOTE]]] = True
         
     # Find negative quotes that pair with the positive quotes
     pairs = []
@@ -210,14 +230,14 @@ class MMySQLDbQuotes(MMySQLDb):
         #print "Looking up at ", self.quotes[line_id-i][4]
         if line_id-i in self.qid_pos:
           encountered_pos_up = True
-        elif found < found_limit and self.quotes[line_id-i][5] <= neg_max_results:
+        elif found < found_limit and self.quotes[line_id-i][MMySQLDbQuotes.RESULT] <= neg_max_results:
           found += 1
           matches.append(line_id-i)
       if not encountered_pos_down and line_id + i < len(self.quotes) and matcher(self.quotes[line_id],self.quotes[line_id+i]):
         #print "Looking down at ", self.quotes[line_id+i][4]
         if line_id+i in self.qid_pos:
           encountered_pos_down = True
-        elif found < found_limit and self.quotes[line_id+i][5] <= neg_max_results:
+        elif found < found_limit and self.quotes[line_id+i][MMySQLDbQuotes.RESULT] <= neg_max_results:
           found += 1
           matches.append(line_id+i)
     return matches

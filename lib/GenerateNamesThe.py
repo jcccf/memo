@@ -10,17 +10,33 @@ def output_thes(filename, filename_output, output_all=False):
           f2.write("%s\t\t%s\n" % (fn, MQuote.clean_movie_title(om)))
         elif output_all:
           f2.write("%s\t\t%s\n" % (fn, om))
+          
+def output_filtered_names(movie_list_file, filenames, filename_output):
+  movie_list = []
+  with open(movie_list_file, 'r') as f:
+    for l in f:
+      movie_list.append(l.replace('\n', ''))
+  i = 0
+  with open(filename_output, 'w') as f2:
+    for filename in filenames:
+      with open(filename, 'r') as f:
+        for l in f:
+          fn, om = l.replace('\n', '').split('\t\t')
+          if MQuote.clean_movie_title(om) in movie_list:
+            f2.write("%s\t\t%s\n" % (fn, MQuote.clean_movie_title(om)))
+            i += 1
+  print i
 
 # Copy Thes Into Another Directory
-def copy_into_new_directory(directory, names_file):
-  dir = directory+'/thes'
+def copy_into_new_directory(directory, names_file, new_directory_name):
+  dir = directory+'/'+new_directory_name
   if not os.path.exists(dir):
     os.makedirs(dir)
   with open(names_file, 'r') as f:
     for l in f:
       fn, om = l.replace('\n', '').split('\t\t')
       try:
-        shutil.move(directory+'/'+fn+'.bing.sqlite', directory+'/thes/'+fn+'.bing.sqlite')
+        shutil.move(directory+'/'+fn+'.bing.sqlite', directory+'/'+new_directory_name+'/'+fn+'.bing.sqlite')
       except Exception as detail:
         print "Exception: ", detail
 
@@ -41,5 +57,7 @@ def merge_names_db_thes(names_db_filename, thes_db_filename):
 # output_thes('../data/scripts/names_cham_unique_dedup.txt', '../data/scripts/names_cham_unique_dedup_thes.txt')
 # copy_into_new_directory('../data/scripts/db', '../data/scripts/names_thes.txt')
 # copy_into_new_directory('../data/scripts/db', '../data/scripts/names_cham_unique_dedup_thes.txt')
-  
 # merge_names_db_thes('../data/scripts/db/names.bing.sqlite', '../data/scripts/db/names_thes.bing.sqlite')
+
+# output_filtered_names('../data/names/brackets.txt', ['../data/scripts/names_cham_unique_dedup.txt', '../data/scripts/names.txt'] , '../data/names/brackets_out.txt')
+copy_into_new_directory('../data/scripts/db', '../data/names/brackets_out.txt', 'brackets')

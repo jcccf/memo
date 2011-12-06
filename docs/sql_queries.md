@@ -20,3 +20,11 @@ SELECT quote, min(result) FROM quotes WHERE quote_type='full' GROUP BY quote, mo
 SELECT q.movie_name, q.actor, q.is_memorable, q.result, q2.result as result2, q.quote FROM quotes q, quotes q2 WHERE q.query_type='movie_title' AND q2.query_type='plain' AND q.quote_type='full' AND q2.quote_type='full' ORDER BY q.id ASC LIMIT 10
 
 SELECT * FROM quotes WHERE movie_name='a few good men' AND query_type='movie_title' AND is_memorable=1 ORDER BY result_fixed DESC
+
+SELECT * FROM quotes WHERE movie_name = 'star wars' AND quote LIKE '%stormtrooper%'
+
+
+FIND # OF MEMORABLE QUOTES THAT DIDN'T GET THE MEMORABILITY BIT SET
+-------------------------------------------------------------------
+SELECT * FROM memorable WHERE id not in (SELECT m.id FROM quotes as q, memorable as m WHERE q.movie_name = m.movie_name AND q.quote = m.matched_quote AND q.quote_type='full')
+

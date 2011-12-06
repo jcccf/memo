@@ -40,7 +40,7 @@ def split_for_validation(example_file, num=10, randomize=True):
           else:
             f2.write(lines[j])
 
-def get_cross_val_accuracy(train_file, num=10, c=None, j=None):
+def get_cross_val_accuracy(train_file, num=10, c=None, j=None, verbose=False):
   split_for_validation(train_file, num)
   accuracies = []
   for i in range(0, num):
@@ -51,7 +51,8 @@ def get_cross_val_accuracy(train_file, num=10, c=None, j=None):
   for _, c, i in accuracies:
     cc += c
     ic += i
-  print accuracies
+  if verbose:
+    print accuracies
   return (float(cc)/(cc+ic), cc, ic)
   
 def get_false_posneg(test_file, classified_file):

@@ -6,7 +6,7 @@ from optparse import OptionParser
 # Options
 parser = OptionParser()
 parser.add_option("-n", "--namefile", type="string", dest="name", default="../data/scripts/names.txt", help="Filename (in data/scripts dir, without extension)")
-parser.add_option("-e", "--engine", type="string", dest="engine_name", default="blekko", help="Name of Search Engine to use")
+parser.add_option("-e", "--engine", type="string", dest="engine_name", default="bing", help="Name of Search Engine to use")
 parser.add_option("-a", "--appid", type="int", dest="appid", default=0, help="AppID Number to Use")
 parser.add_option("-r", "--random", action="store_true", default=False, dest="random")
 (options, args) = parser.parse_args()
@@ -60,7 +60,7 @@ def doIt(name, movie_name='', app_id=0):
         continue
     
       # Search for Full Utterances
-      quote_q = quote.replace('\"','')
+      quote_q = quote.replace('\"','').replace('[','').replace('(', '').replace(']', '').replace(')', '')
       r1 = parser.get("\"%s\"" % quote_q)
       r2 = parser.get("\"%s\" \"%s\"" % (movie_name, quote_q))
       if r1 == None or r2 == None:
