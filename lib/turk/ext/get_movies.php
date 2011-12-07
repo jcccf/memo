@@ -1,17 +1,45 @@
 <?php
 require_once('config.php');
 
-$group_id = $_GET['group_id'];
+$group_id = $_POST['group_id'];
 
-$movies = $db->prepare('SELECT DISTINCT movie_title FROM quote_pairs WHERE group_id = ?');
-$movies->execute(array($group_id));
+$movies = $db->prepare('SELECT movie_title, is_imdb_top FROM movies');
+$movies->execute();
 
-$movie_candidates = array();
+$pop_movies = array();
+$reg_movies = array();
 while($movie = $movies->fetchObject()) {
-  $movie_candidates[] = $movie->movie_title;
+  if ($movie->is_imdb_top == 1) {
+    $pop_movies[] = $movie->movie_title;
+  }
+  else {
+    $reg_movies[] = $movie->movie_title;
+  }
 }
 
-shuffle($movie_candidates);
-echo json_encode($movie_candidates);
+shuffle($pop_movies);
+shuffle($reg_movies);
+
+// Interleave $pop_movies and $reg_movies
+$i = 0;
+$j = 0;
+$final = array();
+while ($i < sizeof($pop_movies)) {
+  $final[] = $pop_movies[$i];
+  for($k = 0; $k < 5; $k++) {
+    if ($j < sizeof($reg_movies)) {
+      $final[] = $reg_movies[$j];
+      $j++;
+    }
+  }
+  $i++;
+}
+// Append rest of $reg_movies if any
+if ($j < sizeof($reg_movies)) {
+  $final[] = $reg_movies[$j];
+  $j++;
+}
+
+echo json_encode($final);
 
 ?>

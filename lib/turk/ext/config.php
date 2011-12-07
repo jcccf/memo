@@ -7,4 +7,7 @@ catch (Exception $e) {
   die($e);
 }
 
+define("MIN_SEEN", 5);
+define("MIN_UNSEEN", 6);
+
 ?>

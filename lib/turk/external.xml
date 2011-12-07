@@ -1,4 +1,4 @@
 <ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">
   <ExternalURL>http://memo.clr3.com/index.php?gid=1</ExternalURL>
-  <FrameHeight>500</FrameHeight>
+  <FrameHeight>600</FrameHeight>
 </ExternalQuestion>

@@ -8,8 +8,8 @@ def createNewHIT
   title = "Movie Quotes Survey"
   desc = "We want to study how well people remember movie quotes."
   keywords = "movie, survey"
-  numAssignments = 10
-  rewardAmount = 0.50 # 50 cents
+  numAssignments = 100
+  rewardAmount = 1.00 # 50 cents
   duration = 600 # 10 minutes
   
   # qualifications = {

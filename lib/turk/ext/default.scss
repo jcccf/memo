@@ -15,6 +15,28 @@ h1 {
   font-size: 2em;
 }
 
+h2 {
+  font-size: 1.5em;
+}
+
+.infoheader {
+  margin-top: 20px;
+  margin-bottom: 3px;
+  text-align: left;
+  font-size: 1.5em;
+  border-bottom: 1px solid gray;
+}
+
+.info {
+  text-align: left;
+  margin-bottom: 15px;
+  
+  .extra {
+    font-weight: bold;
+    display: none;
+  }
+}
+
 @mixin quote_base {
   .quote {
     .num {
@@ -28,6 +50,27 @@ h1 {
     margin-right: 10%;
     margin-bottom: 15px;
     padding: 5px;
+  }
+}
+
+.qoptions {
+  margin: 0 auto;
+  width: 400px;
+  text-align: left;
+  
+  &.last {
+    label {
+      display: inline;
+    }
+    width: 350px;
+    
+    .qoption {
+      clear: both;
+      margin-bottom: 10px;
+      .right {
+        float: right;
+      }
+    }
   }
 }
 
@@ -53,8 +96,21 @@ h1 {
   
   #movies {
     text-align: center;
-    width: 540px;
+    width: 800px;
     margin: auto;
+    
+    margin-top: 15px;
+    margin-bottom: 15px;
+    
+    #movie_name {
+      font-size: 1.6em;
+      font-weight: bold;
+    }
+    
+    .smaller {
+      font-size: 1.3em;
+      font-weight: bold;
+    }
 
     .movie {
       font-size: 1.2em;
@@ -77,12 +133,8 @@ h1 {
   
 }
 
-#loading, #instructions, #final_instructions {
+#loading, #instructions, #final_instructions, #comments {
   display: none;
-}
-
-#instructions {
-  background-color: #BDDBFF;
 }
 
 #instructions, #final_instructions {
@@ -109,6 +161,11 @@ input {
   font-size: 1.2em;
 }
 
+input[type=text]{
+  border: 4px solid black;
+  border-radius: 4px;
+}
+
 input[type=submit], input[type=button]{
   font-size: x-large;
   background-color: #FFE000;
@@ -126,10 +183,24 @@ input[type=radio] {
   margin-right: 5px;
 }
 
+textarea {
+  border: 1px solid gray;
+  border-radius: 5px;
+  font-size: 1.1em;
+  width: 600px;
+  height: 200px;
+  margin: 5px;
+}
+
 .container {
   background-color: #fff;
   border-radius: 20px;
   padding: 20px 15px;
   text-align: center;
   margin: 10px;
+  
+  &.highlight {
+    border: 10px solid #EFC729;
+    background-color: #FFFEF2;
+  }
 }
