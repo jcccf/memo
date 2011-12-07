@@ -4,7 +4,7 @@ import unidecode, pickle
 
 DBNAME = 'memo'
 
-def get_pairs(imdb_memorability=True, pos_min_char=35, pos_min_wc=0, pos_min_results=10, pos_max_results=100000, neg_max_results=10, distance=50, matcher='match_character'):
+def get_pairs(imdb_memorability=True, pos_min_char=35, pos_min_wc=0, pos_min_results=10, pos_max_results=100000, neg_max_results=10, distance=50, found_limit=1, matcher='match_character'):
   '''For each movie that exists, get all quote pairs and'''
   '''select some threshold c above which pos quotes have to be'''
   merge_db = MDb.MMySQLDb(DBNAME)
@@ -13,21 +13,22 @@ def get_pairs(imdb_memorability=True, pos_min_char=35, pos_min_wc=0, pos_min_res
   movie_pairs = {}
   for movie_name, in movie_names:
     mdb = MDb.MMySQLDbQuotes(DBNAME, movie_name)
-    movie_pairs[movie_name] = mdb.get_pos_neg_pairs(imdb_memorability=imdb_memorability, pos_min_char=pos_min_char, pos_min_wc=pos_min_wc, pos_min_results=pos_min_results, pos_max_results=pos_max_results, neg_max_results=neg_max_results, distance=distance, matcher=matcher)
+    movie_pairs[movie_name] = mdb.get_pos_neg_pairs(imdb_memorability=imdb_memorability, pos_min_char=pos_min_char, pos_min_wc=pos_min_wc, pos_min_results=pos_min_results, pos_max_results=pos_max_results, neg_max_results=neg_max_results, distance=distance, found_limit=found_limit, matcher=matcher)
   return movie_pairs
 
 def num_pairs(movie_pairs):
   return sum([len(pairs) for m, pairs in movie_pairs.iteritems()])
 
-def print_pairs(movie_pairs, filename):
+def print_pairs(movie_pairs, filename, min_matches=None):
   '''Print out all positive and negative pairs'''
   with open(filename, 'w') as f:
     for movie_name, pairs in movie_pairs.iteritems():
-      print movie_name
+      f.write(movie_name+"\n")
       for pos, neglist in pairs:
-        f.write('\t%s: %s / %s\n' % (pos[3], unidecode.unidecode(pos[4]), pos[5]))
-        for neg in neglist:
-          f.write('\t\t%s / %s\n' % (unidecode.unidecode(neg[4]), neg[5]))
+        if min_matches is None or (min_matches is not None and len(neglist) >= min_matches):
+          f.write('\t%s\n' % (unidecode.unidecode(pos[4]))) # f.write('\t%s: %s / %s\n' % (pos[3], unidecode.unidecode(pos[4]), pos[5]))
+          for neg in neglist:
+            f.write('\t\t%s\n' % (unidecode.unidecode(neg[4]))) # f.write('\t\t%s / %s\n' % (unidecode.unidecode(neg[4]), neg[5]))
 
 def cross_validate(movie_pairs, filename):
   # Generate Dictionary
@@ -77,11 +78,19 @@ def binomial_significance(num_correct, num_wrong, significance=0.05):
 # pairs = get_pairs(imdb_memorability=False, pos_min_char=0, pos_min_wc=6, pos_min_results=21, pos_max_results=100000, neg_max_results=10, distance=50)
 # pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_21_5.pickle', 'w'))
 
+# pairs = pickle.load(open('../data/svm_pairs/pairs_bing_found_5.pickle', 'r'))
 
-## TODO
-## 0. train separately with/without stopwords
-## 1. use same dictionary
-## 2. train on bing, test on memo, vice versa
+# pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=200, found_limit=10, matcher='match_character_and_quote_length1')
+# pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_short_1.pickle', 'w'))
+# print_pairs(pairs, '../data/svm_pairs/pairs_bing_short_1.txt', min_matches=5)
+
+pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_character_and_quote_length3')
+pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_long_3.pickle', 'w'))
+print_pairs(pairs, '../data/svm_pairs/pairs_bing_long_3.txt', min_matches=1)
+
+pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_character_and_quote_length1')
+pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_long_1.pickle', 'w'))
+print_pairs(pairs, '../data/svm_pairs/pairs_bing_long_1.txt', min_matches=1)
 
 def train_test(train_set, validation_set, filename):
   
@@ -117,11 +126,10 @@ def train_test(train_set, validation_set, filename):
   MSVMLight.learn('%s_%s_tfidf.txt' % (filename, 'train'), '%s_%s_tfidf.txt' % (filename, 'mod'))
   return MSVMLight.classify('%s_%s_tfidf.txt' % (filename, 'val'), '%s_%s_tfidf.txt' % (filename, 'mod'), '%s_%s_tfidf.txt' % (filename, 'class'))
 
-imdb_pairs = pickle.load(open('../data/svm_pairs/pairs_imdb.pickle', 'r'))
-bing_pairs = pickle.load(open('../data/svm_pairs/pairs_bing.pickle', 'r'))
+# imdb_pairs = pickle.load(open('../data/svm_pairs/pairs_imdb.pickle', 'r'))
+# bing_pairs = pickle.load(open('../data/svm_pairs/pairs_bing.pickle', 'r'))
 # print train_test(bing_pairs, imdb_pairs, 'imdb_bing')
-
-print cross_validate(imdb_pairs, '../data/svm_results/testy')
+# print cross_validate(imdb_pairs, '../data/svm_results/testy')
 
 # # See Accuracy for Word Length
 # for i in [1,3,5,7,9,11]:

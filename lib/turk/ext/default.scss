@@ -81,6 +81,10 @@ h1 {
   display: none;
 }
 
+#instructions {
+  background-color: #BDDBFF;
+}
+
 #instructions, #final_instructions {
   @include quote_base;
   

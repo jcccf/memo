@@ -149,8 +149,8 @@ class MDbQuotes(MDb):
       return matches
 
 class MMySQLDb(MDb):
-  def __init__(self, database):
-    self.conn = MySQLdb.connect('lion.cs.cornell.edu', 'jc882', 'memo3330', database)
+  def __init__(self, database, host='lion.cs.cornell.edu', username='jc882', password='memo3330'):
+    self.conn = MySQLdb.connect(host, username, password, database)
     self.conn.text_factory = str
     self.c = self.conn.cursor()
     

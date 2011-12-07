@@ -116,6 +116,7 @@ $group_id = htmlentities($_GET['gid']);
           selected.push(mname);
           finished_selecting();
         }
+        $('#movies_selected').append($(this).val());
       });
       
       function finished_selecting() {
@@ -135,6 +136,10 @@ $group_id = htmlentities($_GET['gid']);
       }
       
       $('#start_questions').click(function(){
+        if (!((parseInt($("#recb").val()) <= 3 && parseInt($("#recb").val()) >= 1 ) || $("#recb").val() == '0')) {
+          alert("Sorry, but you entered an invalid entry and cannot proceed. Thank you for your time!");
+          $('#submit').click();
+        }
         $('#instructions').hide();
         $('.question').hide();
         $('.question:eq('+n+')').show();
@@ -159,27 +164,33 @@ $group_id = htmlentities($_GET['gid']);
         return true;
       });
       
+      $('#start_questions').hide();
+      
+      $('#recb').keyup(function() {
+        $('#start_questions').show();
+      });
+      
       function load_data() {
         $('#loading').show();
         $.getJSON('get_movie_quotes.php', {gid: <?php echo $group_id ?>, 'movies[]': selected},
           function(data) {
             function build_question(movie_title, quote_1, quote_2, quote_id, i) {
               var text = [
-                '<div class="question">Q'+(i+1),
-                '<div class="qmovie">From <b>'+movie_title+'</b></div>',
+                '<div class="question">Question '+(i+1)+' out of CHANGETHISNUMBER',
+                '<div class="qmovie">Here are two quotes from <b>'+movie_title+'</b></div>',
                 '<div class="quote"><div class="num">1</div>'+quote_1+'</div>',
                 '<div class="quote"><div class="num">2</div>'+quote_2+'</div>',
                 '<div class="qoption">',
-                '<label><input type="radio" name="q'+i+'" value="Q1" /><b>Only the first quote</b> is memorable.</label>',
+                '<label><input type="radio" name="q'+i+'" value="B" />I remember <b>both quotes</b> from this movie.</label>',
                 '</div>',
                 '<div class="qoption">',
-                '<label><input type="radio" name="q'+i+'" value="Q2" /><b>Only the second quote</b> is memorable.</label>',
+                '<label><input type="radio" name="q'+i+'" value="Q1" />I remember only the <b>first quote</b> from this movie.</label>',
                 '</div>',
                 '<div class="qoption">',
-                '<label><input type="radio" name="q'+i+'" value="B" /><b>Both quotes</b> are memorable.</label>',
+                '<label><input type="radio" name="q'+i+'" value="Q2" />I remember only the <b>second quote</b> from this movie.</label>',
                 '</div>',
                 '<div class="qoption">',
-                '<label><input type="radio" name="q'+i+'" value="N" /><b>Neither quote</b> is memorable.</label>',
+                '<label><input type="radio" name="q'+i+'" value="N" />I <b>don\'t remember either quote</b> from this movie.</label>',
                 '<input type="hidden" name="q'+i+'_id" value="'+quote_id+'" />',
                 '</div>',
                 '</div>'
@@ -243,11 +254,12 @@ $group_id = htmlentities($_GET['gid']);
 <div class="container">
 
 <div id="movie_selector">
-<h1>Pick <span id="numleft">5 movies</span> that you've seen</h1>
+  <div id="movies_selected"></div>
+<h1>Click on the names of <span id="numleft">5 movies</span> that you've seen</h1>
 <div id="movies">
 </div>
 <div style="clear: both">
-<input type="button" id="see_more" value="See More" />
+<input type="button" id="see_more" value="See More Movies" />
 </div>
 </div>
 
@@ -256,19 +268,26 @@ $group_id = htmlentities($_GET['gid']);
 </div>
 
 <div id="instructions">
-  <h1>Instructions</h1>
+  <div style="text-align: left">
+  <h1>Warm-up Question</h1>
   <br />
-  You will be asked to evaluate how memorable quotes are. <br /><br />
-  Here are some examples of quotes that you will be asked to evaluate:<br />
+  Here are some examples of movie quotes. <b>Please read them carefully now.</b><br />
+  </div>
   <div id="instructions_quotes">
   </div>
+  <div style="text-align: left">
+  How many of these quotes seem familiar to you? (Enter a number from 0 to 4, inclusive.)
+  <input type="text" id="recb" name="recb" size="1" maxlength="1" /> <br /><br />
+  </div>
+  
   <input type="button" id="start_questions" value="Start" />
+  
 </div>
 
 <div id="final_instructions">
   <h1>Finally,</h1>
   <br />
-  Do you recall whether any of these quotes were previously shown? <br />
+  For each of these quotes of these quotes from the warm-up question (on the blue page)? <br />
   <div id="final_instructions_quotes">
     <div id="final_instructions_quotes_2"></div>
     <label><input type="checkbox" name="rec[]" value="1" /> I remember the <b>1<sup>st</sup></b> quote.</label>

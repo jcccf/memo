@@ -28,3 +28,6 @@ FIND # OF MEMORABLE QUOTES THAT DIDN'T GET THE MEMORABILITY BIT SET
 -------------------------------------------------------------------
 SELECT * FROM memorable WHERE id not in (SELECT m.id FROM quotes as q, memorable as m WHERE q.movie_name = m.movie_name AND q.quote = m.matched_quote AND q.quote_type='full')
 
+FIND AVERAGE RESULTS PER MOVIE
+--------------------------
+SELECT movie_name, AVG(result_fixed) as avg_result_fixed FROM quotes WHERE query_type='movie_title' AND quote_type='full' AND quote_wc > 5 AND result_fixed < 1000000 GROUP BY movie_name ORDER BY avg_result_fixed

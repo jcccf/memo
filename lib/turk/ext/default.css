@@ -56,6 +56,9 @@ h1 {
 #loading, #instructions, #final_instructions {
   display: none; }
 
+#instructions {
+  background-color: #BDDBFF; }
+
 #instructions .quote, #final_instructions .quote {
   font-size: larger;
   border: 1px solid #cfcfcf;
