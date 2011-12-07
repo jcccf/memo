@@ -19,14 +19,15 @@ def get_pairs(imdb_memorability=True, pos_min_char=35, pos_min_wc=0, pos_min_res
 def num_pairs(movie_pairs):
   return sum([len(pairs) for m, pairs in movie_pairs.iteritems()])
 
-def print_pairs(movie_pairs, filename, min_matches=None):
+def print_pairs(movie_pairs, filename, min_matches=None, imdb=True):
   '''Print out all positive and negative pairs'''
   with open(filename, 'w') as f:
     for movie_name, pairs in movie_pairs.iteritems():
       f.write(movie_name+"\n")
       for pos, neglist in pairs:
         if min_matches is None or (min_matches is not None and len(neglist) >= min_matches):
-          f.write('\t%s\n' % (unidecode.unidecode(pos[4]))) # f.write('\t%s: %s / %s\n' % (pos[3], unidecode.unidecode(pos[4]), pos[5]))
+          pq = pos[7] if imdb else pos[4]
+          f.write('\t%s\n' % (unidecode.unidecode(pq))) # f.write('\t%s: %s / %s\n' % (pos[3], unidecode.unidecode(pos[4]), pos[5]))
           for neg in neglist:
             f.write('\t\t%s\n' % (unidecode.unidecode(neg[4]))) # f.write('\t\t%s / %s\n' % (unidecode.unidecode(neg[4]), neg[5]))
 
@@ -84,11 +85,11 @@ def binomial_significance(num_correct, num_wrong, significance=0.05):
 # pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_short_1.pickle', 'w'))
 # print_pairs(pairs, '../data/svm_pairs/pairs_bing_short_1.txt', min_matches=5)
 
-pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_character_and_quote_length3')
+pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_imdb_character_and_quote_length3')
 pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_long_3.pickle', 'w'))
 print_pairs(pairs, '../data/svm_pairs/pairs_bing_long_3.txt', min_matches=1)
 
-pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_character_and_quote_length1')
+pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_imdb_character_and_quote_length1')
 pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_long_1.pickle', 'w'))
 print_pairs(pairs, '../data/svm_pairs/pairs_bing_long_1.txt', min_matches=1)
 

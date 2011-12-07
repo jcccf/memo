@@ -162,21 +162,21 @@ class MMySQLDbQuotes(MMySQLDb):
   def match_character(base, candidate):
     return base[MMySQLDbQuotes.ACTOR] == candidate[MMySQLDbQuotes.ACTOR]
 
-  def match_character_and_quote_length(length):
+  def match_imdb_character_and_quote_length(length):
     return (lambda base, candidate: (base[MMySQLDbQuotes.ACTOR] == candidate[MMySQLDbQuotes.ACTOR] and -length <= base[MMySQLDbQuotes.IMDB_QUOTE_WC] - candidate[MMySQLDbQuotes.QUOTE_WC] <= length))
     
-  def match_character_and_constant_quote_length(minl,maxl):
+  def match_imdb_character_and_constant_quote_length(minl,maxl):
     return (lambda base, candidate: (base[MMySQLDbQuotes.ACTOR] == candidate[MMySQLDbQuotes.ACTOR] and minl <= base[MMySQLDbQuotes.IMDB_QUOTE_WC] <= maxl and minl <= candidate[MMySQLDbQuotes.QUOTE_WC] <= maxl))
 
   match_dict = { 
     'match_character' : match_character,
-    'match_character_and_quote_length1': match_character_and_quote_length(1),
-    'match_character_and_quote_length3': match_character_and_quote_length(3),
-    'match_character_and_quote_length5': match_character_and_quote_length(5),
-    'match_character_and_quote_length7': match_character_and_quote_length(7),
-    'match_character_and_quote_length9': match_character_and_quote_length(9),
-    'match_character_and_quote_length11': match_character_and_quote_length(11),
-    'match_character_and_constant_quote_length': match_character_and_constant_quote_length(5,7)
+    'match_character_imdb_and_quote_length1': match_imdb_character_and_quote_length(1),
+    'match_character_imdb_and_quote_length3': match_imdb_character_and_quote_length(3),
+    'match_character_imdb_and_quote_length5': match_imdb_character_and_quote_length(5),
+    'match_character_imdb_and_quote_length7': match_imdb_character_and_quote_length(7),
+    'match_character_imdb_and_quote_length9': match_imdb_character_and_quote_length(9),
+    'match_character_imdb_and_quote_length11': match_imdb_character_and_quote_length(11),
+    'match_character_imdb_and_constant_quote_length': match_imdb_character_and_constant_quote_length(5,7)
   }
 
   # Start of Real Functions
