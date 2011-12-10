@@ -37,6 +37,10 @@ h2 {
   }
 }
 
+#truesubmit {
+  display: none;
+}
+
 @mixin quote_base {
   .quote {
     .num {

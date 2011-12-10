@@ -30,6 +30,14 @@ def print_pairs(movie_pairs, filename, min_matches=None, imdb=True):
           f.write('\t%s\n' % (unidecode.unidecode(pq))) # f.write('\t%s: %s / %s\n' % (pos[3], unidecode.unidecode(pos[4]), pos[5]))
           for neg in neglist:
             f.write('\t\t%s\n' % (unidecode.unidecode(neg[4]))) # f.write('\t\t%s / %s\n' % (unidecode.unidecode(neg[4]), neg[5]))
+            
+def only_negatives(movie_pairs):
+  new_pairs = {}
+  for movie, pairs in movie_pairs.iteritems():
+    new_pairs[movie] = []
+    for _, neglist in pairs:
+      new_pairs[movie] += [neg[4] for neg in neglist]
+  return new_pairs
 
 def cross_validate(movie_pairs, filename):
   # Generate Dictionary
@@ -85,13 +93,19 @@ def binomial_significance(num_correct, num_wrong, significance=0.05):
 # pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_short_1.pickle', 'w'))
 # print_pairs(pairs, '../data/svm_pairs/pairs_bing_short_1.txt', min_matches=5)
 
-pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_imdb_character_and_quote_length3')
-pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_long_3.pickle', 'w'))
-print_pairs(pairs, '../data/svm_pairs/pairs_bing_long_3.txt', min_matches=1)
+# pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_imdb_character_and_quote_length3')
+# pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_long_3.pickle', 'w'))
+# print_pairs(pairs, '../data/svm_pairs/pairs_bing_long_3.txt', min_matches=1)
+# 
+# pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_imdb_character_and_quote_length1')
+# pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_long_1.pickle', 'w'))
+# print_pairs(pairs, '../data/svm_pairs/pairs_bing_long_1.txt', min_matches=1)
 
-pairs = get_pairs(imdb_memorability=True, pos_min_char=0, pos_min_wc=6, pos_min_results=0, pos_max_results=99999999, neg_max_results=99999999, distance=50, found_limit=3, matcher='match_imdb_character_and_quote_length1')
-pickle.dump(pairs, open('../data/svm_pairs/pairs_bing_long_1.pickle', 'w'))
-print_pairs(pairs, '../data/svm_pairs/pairs_bing_long_1.txt', min_matches=1)
+pairs = pickle.load(open('../data/svm_pairs/pairs_bing_short_1.pickle', 'r'))
+pickle.dump(only_negatives(pairs), open('../data/svm_pairs/pairs_bing_short_1_neg.pickle', 'w'))
+
+pairs = pickle.load(open('../data/svm_pairs/pairs_bing_long_1.pickle', 'r'))
+pickle.dump(only_negatives(pairs), open('../data/svm_pairs/pairs_bing_long_1_neg.pickle', 'w'))
 
 def train_test(train_set, validation_set, filename):
   

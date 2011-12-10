@@ -29,6 +29,9 @@ h2 {
     font-weight: bold;
     display: none; }
 
+#truesubmit {
+  display: none; }
+
 .qoptions {
   margin: 0 auto;
   width: 400px;

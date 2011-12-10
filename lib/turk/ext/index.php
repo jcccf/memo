@@ -160,7 +160,10 @@ require_once('config.php');
         $('#instructions').show();
       }
       
-      $('#recb').keyup(function() {
+      $('#recb').keypress(function(e) {
+        if (e.which == 13) { // Prevent enter key from submitting
+          return false;
+        }
         $('#start_questions').show();
       });
       
@@ -189,7 +192,7 @@ require_once('config.php');
           function build_question(movie_title, quote_1, quote_2, quote_id, i, swapped, seen) {
             var text = [
               '<div class="question">Question '+(i+1)+' out of '+data.q.length,
-              '<div class="qmovie">Here are two quotes from <b>'+movie_title+'</b>. Which quote, if either, seems more memorable?</div>',
+              '<div class="qmovie">Here are two quotes from <b>'+movie_title+'</b>. Which, if any, of these quotes seem memorable?</div>',
               '<div class="quote"><div class="num">1</div>'+quote_1+'</div>',
               '<div class="quote"><div class="num">2</div>'+quote_2+'</div>',
               '<div class="qoptions">',
