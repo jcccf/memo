@@ -1,6 +1,10 @@
 import unidecode, re, string, pickle, nltk
 from misc import *
 
+# Load Multi Matches
+spairs_multi = MFile.pickle_load_mac('../data/svm_pairs/pairs_bing_short_1_neg_is_in_multi.pickle')
+lpairs_multi = MFile.pickle_load_mac('../data/svm_pairs/pairs_bing_long_1_neg_is_in_multi.pickle')
+
 def strip_for_cmp(n):
   n = unidecode.unidecode(n).replace('\n','').lower()
   n = re.sub(r'\s*\([0-9]+\)', '', n)
@@ -8,6 +12,16 @@ def strip_for_cmp(n):
   n = n.replace('the ', '')
   return n
 
+def make_neg_dict(multi):
+  sdict = {}
+  for movie, negs in multi.iteritems():
+    sdict[movie] = {}
+    for neg, in_multi in negs:
+      if in_multi is False:
+        sdict[movie][neg] = True
+  return sdict
+
+# Load IMDB Names
 names = []
 with open('../data/names/imdb_top_250.txt', 'r') as f:
   for l in f:
@@ -17,13 +31,29 @@ with open('../data/names/imdb_top_250.txt', 'r') as f:
 lpairs = pickle.load(open('../data/svm_pairs/pairs_bing_long_1.pickle', 'r'))
 spairs = pickle.load(open('../data/svm_pairs/pairs_bing_short_1.pickle', 'r'))
 
+# Load Negative Dicts
+sdict = make_neg_dict(spairs_multi)
+ldict = make_neg_dict(lpairs_multi)
+
+# Filter Shorts
 stemp = {}
 for movie, pairs in spairs.iteritems():
   stemp[movie] = []
   for pos, neglist in pairs:
+    neglist = [n for n in neglist if n[4] in sdict[movie]]
     if len(neglist) >= 5:
       stemp[movie].append((pos, neglist))
 spairs = stemp
+
+# Filter Longs
+ltemp = {}
+for movie, pairs in lpairs.iteritems():
+  ltemp[movie] = []
+  for pos, neglist in pairs:
+    neglist = [n for n in neglist if n[4] in ldict[movie]]
+    if len(neglist) >= 1:
+      ltemp[movie].append((pos, neglist))
+lpairs = ltemp
 
 # Get Intersection of Sufficient Quotes
 valid_movies = []

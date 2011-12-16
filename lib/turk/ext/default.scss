@@ -19,6 +19,14 @@ h2 {
   font-size: 1.5em;
 }
 
+ul {
+  margin-left: 40px;
+  li {
+    margin-top: 10px;
+    
+  }
+}
+
 .infoheader {
   margin-top: 20px;
   margin-bottom: 3px;
@@ -137,7 +145,7 @@ h2 {
   
 }
 
-#loading, #instructions, #final_instructions, #comments {
+#movie_selector, #loading, #instructions, #final_instructions, #comments, #question_instructions, #post_submit {
   display: none;
 }
 

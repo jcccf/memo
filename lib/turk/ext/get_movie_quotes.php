@@ -22,13 +22,13 @@ while($str = $strecall->fetchObject()) {
 }
 
 // Print out questions
-for($i=0; $i<MIN_SEEN; $i++) {
-  $posts = $db->prepare('SELECT id, movie_title, quote_1, quote_2 FROM quote_pairs WHERE group_id = ? AND movie_title = ?');
-  $posts->execute(array($group_id, $movies[$i]));
-  while($post = $posts->fetchObject()) {
-   $a['q'][] = array('m' => $post->movie_title, 'q1' => $post->quote_1, 'q2' => $post->quote_2, 'qid' => $post->id, 's' => 1);
-  }
-}
+// for($i=0; $i<MIN_SEEN; $i++) {
+//   $posts = $db->prepare('SELECT id, movie_title, quote_1, quote_2 FROM quote_pairs WHERE group_id = ? AND movie_title = ?');
+//   $posts->execute(array($group_id, $movies[$i]));
+//   while($post = $posts->fetchObject()) {
+//    $a['q'][] = array('m' => $post->movie_title, 'q1' => $post->quote_1, 'q2' => $post->quote_2, 'qid' => $post->id, 's' => 1);
+//   }
+// }
 for($i=1; $i<MIN_UNSEEN; $i++) {
   $posts = $db->prepare('SELECT id, movie_title, quote_1, quote_2 FROM quote_pairs WHERE group_id = ? AND movie_title = ?');
   $posts->execute(array($group_id, $unseen[$i]));

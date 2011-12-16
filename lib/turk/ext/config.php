@@ -7,7 +7,8 @@ catch (Exception $e) {
   die($e);
 }
 
-define("MIN_SEEN", 5);
-define("MIN_UNSEEN", 6);
+define("MIN_SEEN", 0);
+define("MIN_UNSEEN", 9);
+define("QUESTION_LIMIT", 15);
 
 ?>
