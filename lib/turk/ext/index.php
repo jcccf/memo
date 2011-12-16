@@ -87,6 +87,8 @@ require_once('config.php');
           $('input[name=q'+n+'][value='+corr_oth+']').parent().animate({color: 'red'}, 300);
           num_incorrect++;
         }
+        $('#qblock_'+n+' .quote:eq('+(corr-1)+')').prepend($('<div style=\'float: right;\'><img src="tick.png" />&nbsp;</div>'));
+        $('#qblock_'+n+' .quote:eq('+(corr_oth-1)+')').prepend($('<div style=\'float: right;\'><img src="cross.png" />&nbsp;</div>'));
         $('input[name=q'+n+'][value='+corr+']').parent().animate({color: 'green'}, 300).delay(600).queue(continueThis);
       });
       
@@ -101,6 +103,8 @@ require_once('config.php');
           $('input[name=q'+n+'][value='+corr_oth+']').parent().animate({color: 'red'}, 300);
           num_incorrect++;
         }
+        $('#qblock_'+n+' .quote:eq('+(corr-1)+')').prepend($('<div style=\'float: right;\'><img src="tick.png" />&nbsp;</div>'));
+        $('#qblock_'+n+' .quote:eq('+(corr_oth-1)+')').prepend($('<div style=\'float: right;\'><img src="cross.png" />&nbsp;</div>'));
         $('input[name=q'+n+'][value='+corr+']').parent().animate({color: 'green'}, 300).delay(600).queue(function() {
           $('#next_final').hide();
           $('.question').hide();
@@ -237,11 +241,15 @@ require_once('config.php');
         $('#loading').show();
         $.post('get_movie_quotes.php', {gid: <?php echo $group_id ?>, 'movies[]': selected_yes, 'unseen[]': selected_no}, function(data) {
           function build_question(movie_title, quote_1, quote_2, quote_id, i, swapped, seen) {
+			  var extra = '';  
+			  if (i < <?php echo QUESTION_WARMUP_COUNT ?>) {
+				  extra = '&nbsp;<b>(Warm-up)</b>'; 
+			  }
             var text = [
-              '<div class="question">Question '+(i+1)+' out of <?php echo QUESTION_LIMIT ?>',
+              '<div class="question" id="qblock_'+i+'">Question '+(i+1)+' out of <?php echo QUESTION_LIMIT ?>' + extra,
               '<div class="qmovie">Here are two quotes from <b>'+movie_title+'</b>. Which of these quotes seems more memorable?</div>',
-              '<div class="quote"><div class="num">1</div>'+quote_1+'</div>',
-              '<div class="quote"><div class="num">2</div>'+quote_2+'</div>',
+              '<div class="quote"><div class="num">1</div><div class="qtext">'+quote_1+'</div></div>',
+              '<div class="quote"><div class="num">2</div><div class="qtext">'+quote_2+'</div></div>',
               '<div class="qoptions">',
               '<div class="qoption">',
               '<label><input type="radio" name="q'+i+'" value="1" />The <b>first quote</b> seems more memorable.</label>',
@@ -331,7 +339,7 @@ require_once('config.php');
 </div>
 
 <div id="movie_selector">
-<div class="info">Hi! <span id="your_name"></span>! For this study, we'll first need to find out the names of a few movies you've seen and a few you haven't seen. <span class="extra">Hang in there! You're almost done!</span></div>
+<div class="info">Hi, <span id="your_name"></span>! For this study, we'll first need to find out the names of a few movies you've seen and a few you haven't seen. <span class="extra">Hang in there! You're almost done!</span></div>
 <h2>Have you seen...</h2>
 <div id="movies">
   <span id="movie_name"></span>&nbsp;<span class="smaller"></span>
@@ -355,7 +363,7 @@ require_once('config.php');
   <div id="instructions_quotes">
   </div>
   <div style="text-align: left">
-  How many of these quotes seem familiar to you? (Enter a number from 0 to 4, inclusive.)
+  How many of these quotes seem familiar to you? (Enter a number from 0 to 4, inclusive.) &nbsp;
   <input type="text" id="recb" name="recb" size="1" maxlength="1" placeholder="?" /> <br /><br />
   </div>
   

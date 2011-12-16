@@ -15,6 +15,11 @@ h1 {
 h2 {
   font-size: 1.5em; }
 
+ul {
+  margin-left: 40px; }
+  ul li {
+    margin-top: 10px; }
+
 .infoheader {
   margin-top: 20px;
   margin-bottom: 3px;
@@ -61,6 +66,9 @@ h2 {
     #questions .question .quote .num {
       float: left;
       font-weight: bold; }
+    #questions .question .quote .qtext {
+      margin-left: 24px;
+      margin-right: 24px; }
   #questions .question .qmovie {
     margin-bottom: 10px;
     padding-top: 5px; }
@@ -95,7 +103,7 @@ h2 {
       background-color: #f1f1f1;
       cursor: pointer; }
 
-#loading, #instructions, #final_instructions, #comments {
+#movie_selector, #loading, #instructions, #final_instructions, #comments, #question_instructions, #post_submit {
   display: none; }
 
 #instructions .quote, #final_instructions .quote {
@@ -109,6 +117,9 @@ h2 {
   #instructions .quote .num, #final_instructions .quote .num {
     float: left;
     font-weight: bold; }
+  #instructions .quote .qtext, #final_instructions .quote .qtext {
+    margin-left: 24px;
+    margin-right: 24px; }
 #instructions #instructions_quotes, #instructions #final_instructions_quotes, #final_instructions #instructions_quotes, #final_instructions #final_instructions_quotes {
   margin-top: 15px;
   border-bottom: 1px dashed gray;
@@ -126,8 +137,8 @@ input {
   font-size: 1.2em; }
 
 input[type=text] {
-  border: 4px solid black;
-  border-radius: 4px; }
+  border: 1px solid black;
+  border-radius: 8px; }
 
 input[type=submit], input[type=button] {
   font-size: x-large;
