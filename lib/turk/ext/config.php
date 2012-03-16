@@ -8,7 +8,7 @@ catch (Exception $e) {
 }
 
 define("MIN_SEEN", 0);
-define("MIN_UNSEEN", 9);
+define("MIN_UNSEEN", 16); // previously 9
 define("QUESTION_LIMIT", 15);
 define("QUESTION_WARMUP_COUNT", 3);
 ?>

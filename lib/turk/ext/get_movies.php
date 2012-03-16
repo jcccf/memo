@@ -3,7 +3,7 @@ require_once('config.php');
 
 $group_id = $_POST['group_id'];
 
-$movies = $db->prepare('SELECT movie_title, is_imdb_top FROM movies');
+$movies = $db->prepare('SELECT movie_title, is_imdb_top FROM movies WHERE cleaned = 1');
 $movies->execute();
 
 $pop_movies = array();

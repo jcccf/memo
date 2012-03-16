@@ -1,5 +1,10 @@
 <?php
-$group_id = htmlentities($_GET['gid']);
+if(!isset($_GET['gid'])) {
+	$group_id = 1;
+}
+else {
+	$group_id = htmlentities($_GET['gid']);
+}
 require_once('config.php');
 ?>
 <!DOCTYPE html>
@@ -375,7 +380,7 @@ require_once('config.php');
   <div style="text-align: left">
   <h1>Instructions</h1>
   <br />
-  Next, you'll be asked to compare 15 pairs of quotes from movies you haven't seen, and determine which is more memorable. The first three questions are warm-up questions, and do not count in our experiments.
+  Next, you'll be asked to compare <?php echo QUESTION_LIMIT ?> pairs of quotes from movies you haven't seen, and determine which is more memorable. The first three questions are warm-up questions, and do not count in our experiments.
   
   <br /><br />At times, it might seem like neither quote is memorable, or that both seem equally memorable. However, please keep in mind that these quotes have already been annotated by humans, and one is indeed more memorable than the other. Do your best to 'recover' those existing labels! 
   

@@ -36,7 +36,10 @@ class MDb(object):
   def q(self, query):
     self.c.execute(query)
     return self.c.fetchall()
-    
+  
+  def rowcount(self):
+    return self.c.rowcount
+  
   def qt(self, query, tuples):
     self.c.execute(query, tuples)
     return self.c.fetchall()
