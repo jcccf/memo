@@ -55,7 +55,7 @@ ul {
   padding-bottom: 20px;
   margin-bottom: 30px;
   border-bottom: 1px dashed gray; }
-  #questions .question .quote {
+  #questions .question .quote, #questions .question .starter_quote {
     font-size: larger;
     border: 1px solid #cfcfcf;
     border-radius: 12px;
@@ -63,12 +63,20 @@ ul {
     margin-right: 10%;
     margin-bottom: 15px;
     padding: 5px; }
-    #questions .question .quote .num {
+    #questions .question .quote .num, #questions .question .starter_quote .num {
       float: left;
       font-weight: bold; }
-    #questions .question .quote .qtext {
+    #questions .question .quote .qtext, #questions .question .starter_quote .qtext {
       margin-left: 24px;
       margin-right: 24px; }
+  #questions .question .green {
+    background-color: #EFFAB4; }
+  #questions .question .quote {
+    border-style: dashed; }
+    #questions .question .quote:hover {
+      border-color: black;
+      border-style: solid;
+      cursor: pointer; }
   #questions .question .qmovie {
     margin-bottom: 10px;
     padding-top: 5px; }
@@ -106,7 +114,7 @@ ul {
 #movie_selector, #loading, #instructions, #final_instructions, #comments, #question_instructions, #post_submit {
   display: none; }
 
-#instructions .quote, #final_instructions .quote {
+#instructions .quote, #instructions .starter_quote, #final_instructions .quote, #final_instructions .starter_quote {
   font-size: larger;
   border: 1px solid #cfcfcf;
   border-radius: 12px;
@@ -114,12 +122,20 @@ ul {
   margin-right: 10%;
   margin-bottom: 15px;
   padding: 5px; }
-  #instructions .quote .num, #final_instructions .quote .num {
+  #instructions .quote .num, #instructions .starter_quote .num, #final_instructions .quote .num, #final_instructions .starter_quote .num {
     float: left;
     font-weight: bold; }
-  #instructions .quote .qtext, #final_instructions .quote .qtext {
+  #instructions .quote .qtext, #instructions .starter_quote .qtext, #final_instructions .quote .qtext, #final_instructions .starter_quote .qtext {
     margin-left: 24px;
     margin-right: 24px; }
+#instructions .green, #final_instructions .green {
+  background-color: #EFFAB4; }
+#instructions .quote, #final_instructions .quote {
+  border-style: dashed; }
+  #instructions .quote:hover, #final_instructions .quote:hover {
+    border-color: black;
+    border-style: solid;
+    cursor: pointer; }
 #instructions #instructions_quotes, #instructions #final_instructions_quotes, #final_instructions #instructions_quotes, #final_instructions #final_instructions_quotes {
   margin-top: 15px;
   border-bottom: 1px dashed gray;
@@ -147,9 +163,13 @@ input[type=submit], input[type=button] {
   padding: 18px 15px 16px 15px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3), 0px -1px 0 rgba(0, 0, 0, 0.2);
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(255, 255, 255, 0.1), 0px 5px 0 0 #daa206, 0px 5px 0 2px rgba(0, 0, 0, 0.2); }
-
-input[type=submit]:hover, input[type=button]:hover {
-  background-color: #ffd700; }
+  input[type=submit]:hover, input[type=button]:hover {
+    background-color: #ffd700; }
+  input[type=submit][disabled], input[type=button][disabled] {
+    background-color: #EFEFEF;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(255, 255, 255, 0.1), 0px 5px 0 0 #e0e0e0, 0px 5px 0 2px rgba(0, 0, 0, 0.2); }
+    input[type=submit][disabled]:hover, input[type=button][disabled]:hover {
+      background-color: #EFEFEF; }
 
 input[type=radio] {
   margin-right: 5px; }

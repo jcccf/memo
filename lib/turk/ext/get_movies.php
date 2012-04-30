@@ -34,8 +34,9 @@ while ($i < sizeof($pop_movies)) {
   }
   $i++;
 }
+
 // Append rest of $reg_movies if any
-if ($j < sizeof($reg_movies)) {
+while ($j < sizeof($reg_movies)) {
   $final[] = $reg_movies[$j];
   $j++;
 }

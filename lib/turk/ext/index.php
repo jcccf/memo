@@ -11,7 +11,7 @@ require_once('config.php');
 <html>
 <head>
   
-  <title>MTurk HIT</title>
+  <title>Memorable Quotes - How good are you at identifying them?</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
   <script>
@@ -58,63 +58,68 @@ require_once('config.php');
       // Questions Code
       //
       
+      $('.quote').live('click', function() {
+        if(!$(this).hasClass('done')) {
+          var qn = $(this).attr("data-qid");
+          $('.quote[data-qid='+qn+']').css('background-color', '');
+          $(this).css('background-color', '#F0F0F0');
+          $('input[name=q'+qn+']').val($(this).attr("data-qval"));
+        }
+      });
+      
       var n = 0;
       $('#questions_wrapper').hide();
       $('#next_final').hide();
       
-      $('#next').click(function(){
-        if (!$('input[name=q'+n+']:checked').val()) {
-          $('input[name=q'+n+']').each(function(){
-            $(this).parent().animate({color: 'red'}, 300);
-          });
+      $('#next').attr("disabled", "disabled");
+            
+      $('#check').click(function(){        
+        if ($('input[name=q'+n+']').val() == '0') {
+          $('.quote[data-qid='+n+']').css('border-color', 'red');
           return false;
         }
         
+        var corr = '1';
+        var corr_oth = '2';
+        if ($('input[name=q'+n+'_sw]').val() == '1') {
+          corr = '2';
+          corr_oth = '1';
+        }
+        if ($('input[name=q'+n+']').val() != corr) {
+          $('.quote[data-qid='+n+'][data-qval='+corr+']').addClass("green");
+          num_incorrect++;
+          if (n < <?php echo QUESTION_WARMUP_COUNT ?>) {
+            num_incorrect_warmup++;
+          }
+        }
+        $('#qblock_'+n+' .quote:eq('+(corr-1)+')').prepend($('<div style=\'float: right;\'><img src="tick.png" />&nbsp;</div>'));
+        $('#qblock_'+n+' .quote:eq('+(corr_oth-1)+')').prepend($('<div style=\'float: right;\'><img src="cross.png" />&nbsp;</div>'));
+        $('.quote[data-qid='+n+']').addClass("done");
+        $('#next').removeAttr("disabled");
+        $('#check').attr("disabled", "disabled");
+      });
+      
+      $('#next').click(function() {
         function continueThis() {
           $('.question:eq('+n+')').hide();
           n++;
           if ($('.question:eq('+n+')').length > 0) {
             $('.question:eq('+n+')').show();
           }
-          if ($('.question:eq('+(n+1)+')').length == 0) {
-            $('#next').hide();
-            $('#next_final').show();
-          }
         }
         
-        var corr = '1';
-        var corr_oth = '2';
-        if ($('input[name=q'+n+'_sw]').val() == '1') {
-          corr = '2';
-          corr_oth = '1';
-        }
-        if ($('input[name=q'+n+']:checked').val() != corr) {
-          $('input[name=q'+n+'][value='+corr_oth+']').parent().animate({color: 'red'}, 300);
-          num_incorrect++;
-        }
-        $('#qblock_'+n+' .quote:eq('+(corr-1)+')').prepend($('<div style=\'float: right;\'><img src="tick.png" />&nbsp;</div>'));
-        $('#qblock_'+n+' .quote:eq('+(corr_oth-1)+')').prepend($('<div style=\'float: right;\'><img src="cross.png" />&nbsp;</div>'));
-        $('input[name=q'+n+'][value='+corr+']').parent().animate({color: 'green'}, 300).delay(600).queue(continueThis);
-      });
-      
-      $('#next_final').click(function() {
-        var corr = '1';
-        var corr_oth = '2';
-        if ($('input[name=q'+n+'_sw]').val() == '1') {
-          corr = '2';
-          corr_oth = '1';
-        }
-        if ($('input[name=q'+n+']:checked').val() != corr) {
-          $('input[name=q'+n+'][value='+corr_oth+']').parent().animate({color: 'red'}, 300);
-          num_incorrect++;
-        }
-        $('#qblock_'+n+' .quote:eq('+(corr-1)+')').prepend($('<div style=\'float: right;\'><img src="tick.png" />&nbsp;</div>'));
-        $('#qblock_'+n+' .quote:eq('+(corr_oth-1)+')').prepend($('<div style=\'float: right;\'><img src="cross.png" />&nbsp;</div>'));
-        $('input[name=q'+n+'][value='+corr+']').parent().animate({color: 'green'}, 300).delay(600).queue(function() {
-          $('#next_final').hide();
+        if ($('.question:eq('+(n+1)+')').length == 0) {
+          $('#next').hide();
+          $('#check').hide();
           $('.question').hide();
           $('#final_instructions').show();
-        });
+        }
+        else {
+          $('#check').removeAttr("disabled");
+          $('#next').attr("disabled", "disabled");
+          continueThis();
+        }
+        
       });
       
       $('#next_comments').click(function() {
@@ -132,7 +137,7 @@ require_once('config.php');
         }
         $('#final_instructions').hide();
         $('#comments').show();
-        $('#num_correct').html(num_total-num_incorrect + ' out of ' + num_total);
+        $('#num_correct').html(num_total-<?php echo QUESTION_WARMUP_COUNT ?>-num_incorrect+num_incorrect_warmup + ' out of ' + (num_total-<?php echo QUESTION_WARMUP_COUNT ?>));
       });
       
       $('#submit').click(function() {
@@ -154,6 +159,13 @@ require_once('config.php');
       // Hello World Code
       //
       
+      $('#name').keypress(function(e) {
+        if (e.which == 13) { // Prevent enter key from submitting
+          $('#hello_continue').click();
+          return false;
+        }
+      });
+      
       $('#hello_continue').click(function(){ 
         $('#hello_there').hide();
         $('#movie_selector').show();
@@ -170,6 +182,7 @@ require_once('config.php');
       var selected_np = 0;
       var i = 0;
       var num_incorrect = 0;
+      var num_incorrect_warmup = 0;
       var num_total = 0;
       
       $.post('get_movies.php', {group_id: <?php echo $group_id ?>}, function(data) {
@@ -253,15 +266,16 @@ require_once('config.php');
             var text = [
               '<div class="question" id="qblock_'+i+'">Question '+(i+1)+' out of <?php echo QUESTION_LIMIT ?>' + extra,
               '<div class="qmovie">Here are two quotes from <b>'+movie_title+'</b>. Which of these quotes seems more memorable?</div>',
-              '<div class="quote"><div class="num">1</div><div class="qtext">'+quote_1+'</div></div>',
-              '<div class="quote"><div class="num">2</div><div class="qtext">'+quote_2+'</div></div>',
+              '<div class="quote" data-qid="'+i+'" data-qval="1"><div class="num">1</div><div class="qtext">'+quote_1+'</div></div>',
+              '<div class="quote" data-qid="'+i+'" data-qval="2"><div class="num">2</div><div class="qtext">'+quote_2+'</div></div>',
               '<div class="qoptions">',
               '<div class="qoption">',
-              '<label><input type="radio" name="q'+i+'" value="1" />The <b>first quote</b> seems more memorable.</label>',
-              '</div>',
-              '<div class="qoption">',
-              '<label><input type="radio" name="q'+i+'" value="2" />The <b>second quote</b> seems more memorable.</label>',
-              '</div>',
+              // '<label><input type="radio" name="q'+i+'" value="1" />The <b>first quote</b> seems more memorable.</label>',
+              // '</div>',
+              // '<div class="qoption">',
+              // '<label><input type="radio" name="q'+i+'" value="2" />The <b>second quote</b> seems more memorable.</label>',
+              // '</div>',
+              '<input type="hidden" id="qchoice_'+i+'" name="q'+i+'" value="0" />',
               '<input type="hidden" name="q'+i+'_id" value="'+quote_id+'" />',
               '<input type="hidden" name="q'+i+'_sw" value="'+swapped+'" />',
               '<input type="hidden" name="q'+i+'_s" value="'+seen+'" />',
@@ -301,7 +315,7 @@ require_once('config.php');
           // alert(JSON.stringify(before));
           // alert(JSON.stringify(after));
           $.each(before, function(i,quote) {
-            $('#instructions_quotes').append('<div class="quote">'+quote.q+'</div>');
+            $('#instructions_quotes').append('<div class="starter_quote">'+quote.q+'</div>');
           });
           $.each(after, function(i,quote) {
             $('#final_instructions_quotes_2').append('<div class="quote"><div class="num">'+(i+1)+'</div>'+quote.q+'</div>');
@@ -315,8 +329,23 @@ require_once('config.php');
       }
       
     });
+    
   </script>
   <link rel="stylesheet" href="default.css" />
+  
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-30583921-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
 </head>
 
 <body>
@@ -341,6 +370,9 @@ require_once('config.php');
 	<h1>Hi there! What's your name?</h1><br /><br />
 	<input type="text" name="name" id="name" placeholder="Type in here!" size="20" /><br /><br /><br />
 	<input type="button" id="hello_continue" value="Continue" />
+  <br /><br /><br />
+  * Beta just-for-fun version: your input will not affect any experiments.<br /><br />
+  Read more about our paper, <a href="http://arxiv.org/abs/1203.6360">You had me at hello: How phrasing affects memorability</a>.
 </div>
 
 <div id="movie_selector">
@@ -384,7 +416,7 @@ require_once('config.php');
   
   <br /><br />At times, it might seem like neither quote is memorable, or that both seem equally memorable. However, please keep in mind that these quotes have already been annotated by humans, and one is indeed more memorable than the other. Do your best to 'recover' those existing labels! 
   
-  <br /><br />After answering each question you will get instant feedback on whether your answer was correct (indicated with green) or incorrect (indicated with red).
+  <br /><br />After answering each question you will get instant feedback on whether your answer was correct (indicated with green check) or incorrect (indicated with red cross).
   
   <br /><br />This is not an easy task, and it might take a couple of minutes to answer each question.
   
@@ -444,7 +476,7 @@ require_once('config.php');
   <h1>Thanks for participating!</h1>
   <br />
   <h2>You got <span id="num_correct"></span> correct!</h2>
-  (The very last question wasn't counted.)
+  (On average, people get 9 out of 12 questions correct.)
   <br /><br />
   <!--
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://memo.clr3.com/?gid=1" data-text="How good are you at identifying memorable quotes?" data-lang="en" data-size="large">Tweet</a>
@@ -456,8 +488,8 @@ require_once('config.php');
 <div id="questions_wrapper">
 <div id="questions">
 </div>
-<input type="button" id="next" value="Next Question" />
-<input type="button" id="next_final" value="Final Question" />
+<input type="button" id="check" value="Check" /> &nbsp;
+<input type="button" id="next" value="Next" />
 </div>
 
 </div>
